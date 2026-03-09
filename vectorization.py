@@ -5,13 +5,7 @@ from sklearn.model_selection import train_test_split
 from scipy.sparse import save_npz, load_npz
 
 def dataset_split(df):
-    """
-       Used to split the standardised dataframe of hand landmarks into a training and test dataset,
-       ready for use in models
-
-       ------
-       returns: returns two arrays of training data and test data
-       """
+    # split dataset into training and test sets
     print("Split dataset to test, training")
     # df = pd.read_csv(df)
     training_set, test_set = train_test_split(df, random_state=42, test_size=0.2)
@@ -26,7 +20,7 @@ def bow(target_csv, column, folder):
     # column = column being vectorized
     # folder = target folder for files to be saved to
 
-    df = pd.read_csv(f"{target_csv}.csv")
+    df = pd.read_csv(f"raw_datasets//{target_csv}.csv")
     print(df.head())
 
     # check for any nans

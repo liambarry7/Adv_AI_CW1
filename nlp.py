@@ -18,7 +18,11 @@ def text_tokenizing_lem(text):
             tokens.append(token.lemma_)
 
     print(f"Tokenisation complete: {tokens}")
-    return ' '.join(tokens)
+
+    if len(tokens) == 0:
+        return '0'
+    else:
+        return ' '.join(tokens)
 
 
 def text_tokenizing_stem(text):
@@ -35,8 +39,11 @@ def text_tokenizing_stem(text):
             tokens.append(ps.stem(token.text))
 
     print(f"Tokenisation complete: {tokens}")
-    return ' '.join(tokens)
-
+    # return ' '.join(tokens)
+    if len(tokens) == 0:
+        return '0'
+    else:
+        return ' '.join(tokens)
 
 def text_preprocess(mode="lem"):
     # tokenise text and save to csv file
@@ -90,7 +97,12 @@ def ner(text):
             tokens.append(token.ent_type_)
 
     print(f"Entities: {tokens}")
-    return ' '.join(tokens)
+    # return ' '.join(tokens)
+
+    if len(tokens) == 0:
+        return '0'
+    else:
+        return ' '.join(tokens)
 
 def get_entities():
     # get text entities and save to csv file
@@ -128,36 +140,35 @@ def get_entities():
 
 
 def test():
-    pass
 
     print("Test harness")
 
-    # df = pd.read_csv("social-media-release.csv")
-    # df = pd.read_csv("social-media-post-tokens.csv")
-    # print(df.head())
-    #
-    # # get first 3 rows
-    # test_df = df.head(5)
-    #
-    # for post in test_df['post']:
-    #     text_tokens_lem = text_preprocessing(post, 0)
-    #     text_tokens_stem = text_preprocessing(post, 1)
-    #
-    #     ner_entity_types = named_entity_recognition(post)
-    #
-    #     pos_tags = part_of_speech(post)
-    #
-    #     print(f"Post {post}")
-    #     print(f"Tokens lem {text_tokens_lem}")
-    #     print(f"Tokens stem {text_tokens_stem}")
-    #     print(f"Entity types {ner_entity_types}")
-    #     print(f"POS tags {pos_tags}")
+    df = pd.read_csv("raw_datasets//social-media-release.csv")
+    print(df.head())
+
+    # get first 3 rows
+    test_df = df.head(3)
+
+    for post in test_df['post']:
+        text_tokens_lem = text_tokenizing_lem(post)
+        text_tokens_stem = text_tokenizing_stem(post)
+
+        ner_entity_types = ner(post)
+
+        # pos_tags = part_of_speech(post)
+
+        print(f"\nPost : {post}")
+        print(f"Tokens lem : {text_tokens_lem}")
+        print(f"Tokens stem : {text_tokens_stem}")
+        print(f"Entity types : {ner_entity_types}")
+        # print(f"POS tags {pos_tags}")
+        print("\n")
 
 if __name__ == "__main__":
     # spacy.cli.download("en_core_web_sm")
     nlp = spacy.load('en_core_web_sm')
-    test()
+    # test()
 
     # text_preprocess("lem")
-    # text_preprocess("stem")
-    get_entities()
+    text_preprocess("stem")
+    # get_entities()
