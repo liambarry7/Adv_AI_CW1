@@ -1,0 +1,83 @@
+import pandas as pd
+import pickle
+from sklearn.feature_extraction.text import CountVectorizer
+from sklearn.model_selection import train_test_split
+from scipy.sparse import save_npz, load_npz
+
+def dataset_split(df):
+    """
+       Used to split the standardised dataframe of hand landmarks into a training and test dataset,
+       ready for use in models
+
+       ------
+       returns: returns two arrays of training data and test data
+       """
+    print("Split dataset to test, training")
+    # df = pd.read_csv(df)
+    training_set, test_set = train_test_split(df, random_state=42, test_size=0.2)
+    print(training_set.shape, test_set.shape)
+
+    return training_set, test_set
+
+def bow(target_csv, column, folder):
+    # Bag-of-Words
+
+    # target_csv = file being read (e.g. post-tokens-lem)
+    # column = column being vectorized
+    # folder = target folder for files to be saved to
+
+    df = pd.read_csv(f"{target_csv}.csv")
+    print(df.head())
+
+    # check for any nans
+    nan_rows = df[df.isna().any(axis=1)]
+    print(f"nan rows: {nan_rows}")
+    ready_df = df.dropna().reset_index(drop=True)
+
+    nan_rows2 = ready_df[ready_df.isna().any(axis=1)]
+    print(f"nan rows: {nan_rows2}")
+
+    # split the dataset before vectorization
+    training_set, test_set = dataset_split(ready_df)
+
+    # create BoW vectorizer
+    bow_v = CountVectorizer()
+
+    # fit_transform the training data
+    bow_tokens_train = bow_v.fit_transform(training_set[column])
+
+    # only transform the test data as dont want vectorizor to learn the test data too
+    bow_tokens_test = bow_v.transform(test_set[column])
+
+    print(type(bow_tokens_train))
+
+    print(f"training bow: {bow_tokens_train}")
+    print(f"test bow: {bow_tokens_test}")
+
+    # save the datasets, feature vectors and vectorizer
+    # save the datasets
+    training_set.to_csv(f"{folder}//{target_csv}_training.csv", index=False)
+    test_set.to_csv(f"{folder}//{target_csv}_test.csv", index=False)
+
+    # Save the vectorizer using pickle
+    with open(f'{folder}//{target_csv}_bow_v.pkl', 'wb') as file:
+        pickle.dump(bow_v, file)
+
+    # save the feature vectors
+    # https://docs.scipy.org/doc/scipy/reference/sparse.html
+    save_npz(f"{folder}//{target_csv}_train.npz", bow_tokens_train)
+    save_npz(f"{folder}//{target_csv}_test.npz", bow_tokens_train)
+
+
+def test():
+    # https://www.geeksforgeeks.org/nlp/vectorization-techniques-in-nlp/
+    # https://www.geeksforgeeks.org/nlp/how-to-store-a-tfidfvectorizer-for-future-use-in-scikit-learn/
+    # https://docs.scipy.org/doc/scipy/reference/sparse.html
+
+
+
+    pass
+
+if __name__ == "__main__":
+    test()
+    bow("post-tokens_lem", "post_tokens", "bow")
