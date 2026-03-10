@@ -35,7 +35,7 @@ def bow(target_csv, column, folder):
     training_set, test_set = dataset_split(ready_df)
 
     # create BoW vectorizer
-    bow_v = CountVectorizer()
+    bow_v = CountVectorizer(min_df=10) # only include words that appear in 10 > documents
 
     # fit_transform the training data
     bow_tokens_train = bow_v.fit_transform(training_set[column])
@@ -83,7 +83,7 @@ def tfidf(target_csv, column, folder):
     training_set, test_set = dataset_split(ready_df)
 
     # create BoW vectorizer
-    tfidf_v = TfidfVectorizer()
+    tfidf_v = TfidfVectorizer(min_df=10) # only include words that appear in 10 > documents
 
     # fit_transform the training data
     tfidf_train = tfidf_v.fit_transform(training_set[column])
@@ -123,4 +123,4 @@ def test():
 if __name__ == "__main__":
     test()
     bow("post-tokens_lem", "post_tokens", "bow")
-    # tfidf("post-tokens_lem", "post_tokens", "tfidf")
+    tfidf("post-tokens_lem", "post_tokens", "tfidf")
