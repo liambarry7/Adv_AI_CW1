@@ -1,6 +1,6 @@
 import pandas as pd
 import pickle
-from sklearn.feature_extraction.text import CountVectorizer
+from sklearn.feature_extraction.text import CountVectorizer, TfidfVectorizer
 from sklearn.model_selection import train_test_split
 from scipy.sparse import save_npz, load_npz
 
@@ -43,6 +43,7 @@ def bow(target_csv, column, folder):
     # only transform the test data as dont want vectorizor to learn the test data too
     bow_tokens_test = bow_v.transform(test_set[column])
 
+    print(len(bow_v.get_feature_names_out()))
     print(type(bow_tokens_train))
 
     print(f"training bow: {bow_tokens_train}")
@@ -60,8 +61,55 @@ def bow(target_csv, column, folder):
     # save the feature vectors
     # https://docs.scipy.org/doc/scipy/reference/sparse.html
     save_npz(f"{folder}//{target_csv}_train.npz", bow_tokens_train)
-    save_npz(f"{folder}//{target_csv}_test.npz", bow_tokens_train)
+    save_npz(f"{folder}//{target_csv}_test.npz", bow_tokens_test)
 
+def tfidf(target_csv, column, folder):
+    # target_csv = file being read (e.g. post-tokens-lem)
+    # column = column being vectorized
+    # folder = target folder for files to be saved to
+
+    df = pd.read_csv(f"raw_datasets//{target_csv}.csv")
+    print(df.head())
+
+    # check for any nans
+    nan_rows = df[df.isna().any(axis=1)]
+    print(f"nan rows: {nan_rows}")
+    ready_df = df.dropna().reset_index(drop=True)
+
+    nan_rows2 = ready_df[ready_df.isna().any(axis=1)]
+    print(f"nan rows: {nan_rows2}")
+
+    # split the dataset before vectorization
+    training_set, test_set = dataset_split(ready_df)
+
+    # create BoW vectorizer
+    tfidf_v = TfidfVectorizer()
+
+    # fit_transform the training data
+    tfidf_train = tfidf_v.fit_transform(training_set[column])
+
+    # only transform the test data as dont want vectorizor to learn the test data too
+    tfidf_test = tfidf_v.transform(test_set[column])
+
+    print(type(tfidf_train))
+    print(len(tfidf_v.get_feature_names_out()))
+
+    print(f"training bow: {tfidf_train}")
+    print(f"test bow: {tfidf_test}")
+
+    # save the datasets, feature vectors and vectorizer
+    # save the datasets
+    training_set.to_csv(f"{folder}//{target_csv}_training.csv", index=False)
+    test_set.to_csv(f"{folder}//{target_csv}_test.csv", index=False)
+
+    # Save the vectorizer using pickle
+    with open(f'{folder}//{target_csv}_tfidf_v.pkl', 'wb') as file:
+        pickle.dump(tfidf_v, file)
+
+    # save the feature vectors
+    # https://docs.scipy.org/doc/scipy/reference/sparse.html
+    save_npz(f"{folder}//{target_csv}_train.npz", tfidf_train)
+    save_npz(f"{folder}//{target_csv}_test.npz", tfidf_test)
 
 def test():
     # https://www.geeksforgeeks.org/nlp/vectorization-techniques-in-nlp/
@@ -75,3 +123,4 @@ def test():
 if __name__ == "__main__":
     test()
     bow("post-tokens_lem", "post_tokens", "bow")
+    # tfidf("post-tokens_lem", "post_tokens", "tfidf")
