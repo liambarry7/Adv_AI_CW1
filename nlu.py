@@ -11,6 +11,9 @@
     - save the best model
 """
 
+def syntactic_analysis():
+    pass
+
 
 def test():
 

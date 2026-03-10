@@ -138,6 +138,59 @@ def get_entities():
     df_final.to_csv(f"raw_datasets//post-entities.csv", index=False)
 
 
+def pos(text):
+    # returns all the different types of pos tags (e.g. "NOUN", "VERB" etc)
+    tokens = []
+    doc = nlp(text)
+    for token in doc:
+        if token.is_alpha: # only look at tokens consisting of only letters
+            # print(
+            #     f"{str(token.text):15}"
+            #     f"{str(token.pos_):8}"
+            #     f"{str(token.tag_):6}"
+            #     f"{str(spacy.explain(token.tag_))}"
+            # )
+            tokens.append(token.tag_)
+
+    if len(tokens) == 0:
+        return '0'
+    else:
+        return ' '.join(tokens)
+
+
+def get_pos():
+    # get text entities and save to csv file
+
+    df = pd.read_csv("raw_datasets/social-media-release.csv")
+
+    # print any rows with nan values
+    nan_rows = df[df.isna().any(axis=1)]
+    print(f"nan rows: {nan_rows}")
+
+    # if row contains null value, remove
+    df = df.dropna().reset_index(drop=True)
+
+    # remove any duplicates
+    df = df.drop_duplicates().reset_index(drop=True)
+
+    nan_rows = df[df.isna().any(axis=1)]
+    print(f"nan rows: {nan_rows}")
+
+    df['pos'] = df['post'].apply(pos)
+
+    # encode class label
+    df['class_label'] = df['class_label'].astype('category').cat.codes
+
+    nan_rows = df[df.isna().any(axis=1)]
+    print(f"nan rows: {nan_rows}")
+
+    # if row has no tokens, remove row
+    df_cleaned = df.dropna()
+
+    df_final = df_cleaned[['id', 'class_label', 'pos']]
+
+    df_final.to_csv(f"raw_datasets//post-pos.csv", index=False)
+
 
 def test():
 
@@ -155,13 +208,13 @@ def test():
 
         ner_entity_types = ner(post)
 
-        # pos_tags = part_of_speech(post)
+        pos_tags = pos(post)
 
         print(f"\nPost : {post}")
         print(f"Tokens lem : {text_tokens_lem}")
         print(f"Tokens stem : {text_tokens_stem}")
         print(f"Entity types : {ner_entity_types}")
-        # print(f"POS tags {pos_tags}")
+        print(f"POS tags : {pos_tags}")
         print("\n")
 
 if __name__ == "__main__":
@@ -170,5 +223,6 @@ if __name__ == "__main__":
     # test()
 
     # text_preprocess("lem")
-    text_preprocess("stem")
+    # text_preprocess("stem")
     # get_entities()
+    get_pos()

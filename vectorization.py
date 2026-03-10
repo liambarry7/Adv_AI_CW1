@@ -46,8 +46,8 @@ def bow(target_csv, column, folder):
     print(len(bow_v.get_feature_names_out()))
     print(type(bow_tokens_train))
 
-    print(f"training bow: {bow_tokens_train}")
-    print(f"test bow: {bow_tokens_test}")
+    # print(f"training bow: {bow_tokens_train}")
+    # print(f"test bow: {bow_tokens_test}")
 
     # save the datasets, feature vectors and vectorizer
     # save the datasets
@@ -85,7 +85,7 @@ def tfidf(target_csv, column, folder):
     # create BoW vectorizer
     tfidf_v = TfidfVectorizer(min_df=10) # only include words that appear in 10 > documents
 
-    # fit_transform the training data
+    # fit_transform the training data - context week 4 lab part c
     tfidf_train = tfidf_v.fit_transform(training_set[column])
 
     # only transform the test data as dont want vectorizor to learn the test data too
@@ -94,8 +94,8 @@ def tfidf(target_csv, column, folder):
     print(type(tfidf_train))
     print(len(tfidf_v.get_feature_names_out()))
 
-    print(f"training bow: {tfidf_train}")
-    print(f"test bow: {tfidf_test}")
+    # print(f"training bow: {tfidf_train}")
+    # print(f"test bow: {tfidf_test}")
 
     # save the datasets, feature vectors and vectorizer
     # save the datasets
@@ -123,4 +123,11 @@ def test():
 if __name__ == "__main__":
     test()
     bow("post-tokens_lem", "post_tokens", "bow")
+    bow("post-tokens_stem", "post_tokens", "bow")
+    bow("post-entities", "entities", "bow")
+    bow("post-pos", "pos", "bow")
+
     tfidf("post-tokens_lem", "post_tokens", "tfidf")
+    tfidf("post-tokens_stem", "post_tokens", "tfidf")
+    tfidf("post-entities", "entities", "tfidf")
+    tfidf("post-pos", "pos", "tfidf")
