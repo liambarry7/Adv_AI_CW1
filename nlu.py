@@ -9,6 +9,18 @@
     - evaluate results from models, discuss discovered topics and their link to document content,
     news headlines and truth labels
     - save the best model
+
+
+    - tokenise as per nlp
+    - then do topic extraction from tokens, create a document-topic matrix
+    - look at week 4 lab
+    -> vectorise the tokens, then put into LDA for topic extraction
+    -> compare the effectiveness of different vectorisation techniques
+
+    - get intent from sentences
+    - use synonym lists
+
+
 """
 
 def syntactic_analysis():
