@@ -56,20 +56,20 @@ def mlp(target_csv, column):
 """
 
 
-def mlp_finetune(folder, target_csv, column):
+def mlp_finetune(target_csv, column, vectorizerType):
 
     start = time.time()
 
 
     # get datasets
-    training_set = pd.read_csv(f"{folder}{target_csv}_training.csv")
-    test_set = pd.read_csv(f"{folder}{target_csv}_test.csv")
+    training_set = pd.read_csv(f"{vectorizerType}//{target_csv}_training.csv")
+    test_set = pd.read_csv(f"{vectorizerType}//{target_csv}_test.csv")
 
     train_y = training_set[column]
     test_y = test_set[column]
 
-    train_x = load_npz(f"{folder}{target_csv}_train.npz")
-    test_x = load_npz(f"{folder}{target_csv}_test.npz")
+    train_x = load_npz(f"{vectorizerType}//{target_csv}_train.npz")
+    test_x = load_npz(f"{vectorizerType}//{target_csv}_test.npz")
 
     # create a new mlp()
     mlp = MLPClassifier(max_iter=1000, early_stopping=True)
@@ -77,7 +77,7 @@ def mlp_finetune(folder, target_csv, column):
     # define 3 hyperparams to fine-tune
     mlp_hyperparams = [{
         'hidden_layer_sizes': [(100, 50), (64,32), (100,)],
-        'activation': ['relu', 'logistic', 'tanh'],
+        'activation': ['relu', 'tanh'],
         'learning_rate': ['constant', 'adaptive']
     }]
 
@@ -108,11 +108,11 @@ def mlp_finetune(folder, target_csv, column):
     # # params = params used, mean_test_score = avg score over 5 folds, std_test_score =
     # results_df = results_df[['params', 'mean_test_score', 'std_test_score', 'rank_test_score']].sort_values(by='rank_test_score')
     results_df = results_df[
-        ['param_activation', 'param_hidden_layer_sizes', 'param_learning_rate', 'mean_test_score',
+        ['param_activation', 'param_hidden_layer_sizes', 'param_learning_rate', 'mean_fit_time', 'mean_test_score',
          'std_test_score', 'rank_test_score']].sort_values(by='rank_test_score')
     print(results_df.head())
 
-    results_df.to_csv(f'ft_results//mlp_ft_{target_csv}.csv', index=False)
+    results_df.to_csv(f'ft_results//mlp_ft_{vectorizerType}_{target_csv}.csv', index=False)
 
 
 
@@ -124,4 +124,6 @@ def test():
 if __name__ == "__main__":
     # test()
     # mlp("bow//post-tokens_lem", "class_label")
-    mlp_finetune("bow//", "post-tokens_lem", "class_label")
+    # mlp("bow//post-tokens_lem", "class_label")
+    mlp_finetune("post-tokens_lem", "class_label", "bow")
+    # mlp_finetune("post-tokens_lem", "class_label", "tfidf")
