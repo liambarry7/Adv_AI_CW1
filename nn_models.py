@@ -125,14 +125,15 @@ if __name__ == "__main__":
     # test()
     # mlp("bow//post-tokens_lem", "class_label")
     # mlp("bow//post-tokens_lem", "class_label")
+
+    # fine tune for
     # mlp_finetune("post-tokens_lem", "class_label", "bow") # done
-    mlp_finetune("post-tokens_stem", "class_label", "bow")
+    # mlp_finetune("post-tokens_stem", "class_label", "bow") # done
 
     # mlp_finetune("post-tokens_lem", "class_label", "tfidf") # done
-    # mlp_finetune("post-tokens_stem", "class_label", "tfidf")
-    # mlp_finetune("post-tokens_lem", "class_label", "tfidf")
+    # mlp_finetune("post-tokens_stem", "class_label", "tfidf") # done
 
-
+    pass
 
 """"
     Testing plan:
