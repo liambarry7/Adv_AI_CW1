@@ -51,7 +51,7 @@ def bow(target_csv, column, folder):
 
     # save the datasets, feature vectors and vectorizer
     # save the datasets
-    training_set.to_csv(f"{folder}//{target_csv}_training.csv", index=False)
+    training_set.to_csv(f"{folder}//{target_csv}_train.csv", index=False)
     test_set.to_csv(f"{folder}//{target_csv}_test.csv", index=False)
 
     # Save the vectorizer using pickle
@@ -63,7 +63,8 @@ def bow(target_csv, column, folder):
     save_npz(f"{folder}//{target_csv}_train.npz", bow_tokens_train)
     save_npz(f"{folder}//{target_csv}_test.npz", bow_tokens_test)
 
-def tfidf(target_csv, column, folder):
+
+def tfidf(target_csv, column, folder, raw=0):
     # target_csv = file being read (e.g. post-tokens-lem)
     # column = column being vectorized
     # folder = target folder for files to be saved to
@@ -99,7 +100,7 @@ def tfidf(target_csv, column, folder):
 
     # save the datasets, feature vectors and vectorizer
     # save the datasets
-    training_set.to_csv(f"{folder}//{target_csv}_training.csv", index=False)
+    training_set.to_csv(f"{folder}//{target_csv}_train.csv", index=False)
     test_set.to_csv(f"{folder}//{target_csv}_test.csv", index=False)
 
     # Save the vectorizer using pickle
@@ -111,34 +112,31 @@ def tfidf(target_csv, column, folder):
     save_npz(f"{folder}//{target_csv}_train.npz", tfidf_train)
     save_npz(f"{folder}//{target_csv}_test.npz", tfidf_test)
 
-def combine_datasets(v_type):
-    # combine datasets from a list
-    print(f"Combine {v_type} datasets...")
-    # combine tokens + ner for example using hstack?
-    # create a long vector with more data
-    set = ["train", "test"]
 
-    # get training data
-    for t in set:
+def combine_datasets(v_type, file1, file2, columns, name):
+    #   AMEND TO FIX FOR RAW DATASETS RATHER THAN ALRADY VECTORISED ONES
 
-        tokens_lem = load_npz(f"{v_type}//post-tokens_lem_{t}.npz")
-        tokens_stem = load_npz(f"{v_type}//post-tokens_lem_{t}.npz")
-        entities = load_npz(f"{v_type}//post-entities_{t}.npz")
-        pos = load_npz(f"{v_type}//post-pos_{t}.npz")
+    # for i in ["train", "test"]:
+    #     # combine two datasets together where doc ID match
+    df1 = pd.read_csv(f"{v_type}//{file1}.csv")
+    df2 = pd.read_csv(f"{v_type}//{file2}.csv")
 
-        lem_ner = hstack([tokens_lem, entities])
-        stem_ner = hstack([tokens_stem, entities])
-        lem_pos = hstack([tokens_lem, pos])
-        stem_pos = hstack([tokens_stem, pos])
-        lem_ner_pos = hstack([tokens_lem, entities, pos])
-        stem_ner_pos = hstack([tokens_stem, entities, pos])
+    combined = pd.merge(df1, df2, on=["id", "class_label"], how="inner")
+    print(combined.columns)
+    combined['tokens'] = combined[columns[0]] + " " + combined[columns[1]]
+    combined.drop(columns=columns, inplace=True)
+    combined.to_csv(f"{v_type}//{name}.csv", index=False)
 
-        save_npz(f"{v_type}//lem_ner_{t}.npz", lem_ner)
-        save_npz(f"{v_type}//stem_ner_{t}.npz", stem_ner)
-        save_npz(f"{v_type}//lem_pos_{t}.npz", lem_pos)
-        save_npz(f"{v_type}//stem_pos_{t}.npz", stem_pos)
-        save_npz(f"{v_type}//lem_ner_pos_{t}.npz", lem_ner_pos)
-        save_npz(f"{v_type}//stem_ner_pos_{t}.npz", stem_ner_pos)
+    # for i in ["train", "test"]:
+    #     # combine two datasets together where doc ID match
+    #     df1 = pd.read_csv(f"{v_type}//{file1}_{i}.csv")
+    #     df2 = pd.read_csv(f"{v_type}//{file2}_{i}.csv")
+    #
+    #     combined = pd.merge(df1, df2, on=["id", "class_label"], how="inner")
+    #     print(combined.columns)
+    #     combined['tokens'] = combined[columns[0]] + " " + combined[columns[1]]
+    #     combined.drop(columns=columns, inplace=True)
+    #     combined.to_csv(f"{v_type}//{name}_{i}.csv", index=False)
 
 
 
@@ -153,15 +151,24 @@ def test():
 
 if __name__ == "__main__":
     # test()
-    # bow("post-tokens_lem", "post_tokens", "bow")
-    # bow("post-tokens_stem", "post_tokens", "bow")
-    # bow("post-entities", "entities", "bow")
-    # bow("post-pos", "pos", "bow")
-    #
-    # tfidf("post-tokens_lem", "post_tokens", "tfidf")
-    # tfidf("post-tokens_stem", "post_tokens", "tfidf")
-    # tfidf("post-entities", "entities", "tfidf")
-    # tfidf("post-pos", "pos", "tfidf")
+    # create lem and stem tokens
 
-    combine_datasets("bow")
-    combine_datasets("tfidf")
+    tfidf("post-tokens_lem", "post_tokens", "tfidf")
+    tfidf("post-tokens_stem", "post_tokens", "tfidf")
+
+
+    # # create ner and pos vectors
+    # tfidf("post-entities", "entities", "tfidf")
+    tfidf("post-pos", "pos", "tfidf")
+
+    # stem == better dataset (check lem vs stem csv), quicker and same accuracy
+    # combine datasets -> add csv files together, then vectorize
+
+    # combine_datasets("tfidf", "post-tokens_stem", "post-entities", "tokens_ner")
+    combine_datasets("raw_datasets", "post-tokens_stem", "post-pos", ["post_tokens", "pos"], "tokens_pos")
+
+    # combine_datasets("tfidf", "tokens_ner", "post-pos", "full_data")
+
+    # create token-pos vector
+    tfidf("tokens_pos", "tokens", "tfidf")
+
