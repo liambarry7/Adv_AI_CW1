@@ -149,13 +149,10 @@ def test():
 
     pass
 
-if __name__ == "__main__":
-    # test()
+def create_tfidf():
     # create lem and stem tokens
-
     tfidf("post-tokens_lem", "post_tokens", "tfidf")
     tfidf("post-tokens_stem", "post_tokens", "tfidf")
-
 
     # # create ner and pos vectors
     # tfidf("post-entities", "entities", "tfidf")
@@ -163,12 +160,31 @@ if __name__ == "__main__":
 
     # stem == better dataset (check lem vs stem csv), quicker and same accuracy
     # combine datasets -> add csv files together, then vectorize
-
-    # combine_datasets("tfidf", "post-tokens_stem", "post-entities", "tokens_ner")
     combine_datasets("raw_datasets", "post-tokens_stem", "post-pos", ["post_tokens", "pos"], "tokens_pos")
-
-    # combine_datasets("tfidf", "tokens_ner", "post-pos", "full_data")
 
     # create token-pos vector
     tfidf("tokens_pos", "tokens", "tfidf")
+
+def create_bow():
+    # create lem and stem tokens
+    tfidf("post-tokens_lem", "post_tokens", "bow")
+    tfidf("post-tokens_stem", "post_tokens", "bow")
+
+    # # create ner and pos vectors
+    # tfidf("post-entities", "entities", "tfidf")
+    tfidf("post-pos", "pos", "bow")
+
+    # stem == better dataset (check lem vs stem csv), quicker and same accuracy
+    # combine datasets -> add csv files together, then vectorize
+    combine_datasets("raw_datasets", "post-tokens_stem", "post-pos", ["post_tokens", "pos"], "tokens_pos")
+
+    # create token-pos vector
+    tfidf("tokens_pos", "tokens", "bow")
+
+
+if __name__ == "__main__":
+    # test()
+    create_bow()
+    # create_tfidf()
+
 
