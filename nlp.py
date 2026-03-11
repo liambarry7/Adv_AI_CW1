@@ -224,5 +224,5 @@ if __name__ == "__main__":
 
     # text_preprocess("lem")
     # text_preprocess("stem")
-    # get_entities()
-    get_pos()
+    get_entities()
+    # get_pos()

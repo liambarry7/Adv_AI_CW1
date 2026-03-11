@@ -1,4 +1,5 @@
-
+import pandas as pd
+from vectorization import combine_datasets
 """
     - use NLU & NLP to explore and analyse content in docuemtns and their linked news headlines
     to automatically discover topics across text data
@@ -23,7 +24,33 @@
 
 """
 
+def tokenise(mode="lem"):
+    df = pd.read_csv("raw_datasets/social-media-release.csv")
+
+    # print any rows with nan values
+    nan_rows = df[df.isna().any(axis=1)]
+    print(f"nan rows: {nan_rows}")
+
+    # if row contains null value, remove
+    df = df.dropna().reset_index(drop=True)
+
+    # remove any duplicates
+    df = df.drop_duplicates().reset_index(drop=True)
+
+    
+
+
 def syntactic_analysis():
+    # get tokens (already parsed, stop word removed etc)
+    lem_t = pd.read_csv("raw_datasets//post-tokens_lem.csv")
+    stem_t = pd.read_csv("raw_datasets//post-tokens_stem.csv")
+
+    # tokenise headlines
+
+    # turn tokens into word vectors
+
+    # pass word vectors into lda to discover latent topics
+
     pass
 
 
@@ -34,3 +61,5 @@ def test():
 
 if __name__ == "__main__":
     test()
+
+

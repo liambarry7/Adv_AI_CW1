@@ -184,7 +184,11 @@ def create_bow():
 
 if __name__ == "__main__":
     # test()
+
+    # task one
     create_bow()
     # create_tfidf()
+
+    # task two
 
 

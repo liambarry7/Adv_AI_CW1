@@ -203,8 +203,8 @@ def best_dataset(v_type):
     df.to_csv(f"{v_type}_dataset_comparison_mlp.csv")
 
 
-def test():
-
+def compare():
+    # plot models accuracy against time taken
     pass
 
 
@@ -216,12 +216,12 @@ if __name__ == "__main__":
     # lem_vs_stem("tfidf")
     # best_dataset("tfidf")
 
-    mlp_finetune("tokens_pos", "class_label", "tfidf") # 3164.secs
+    # mlp_finetune("tokens_pos", "class_label", "tfidf") # 3164.secs
 
     # BoW
-    lem_vs_stem("bow")
+    # lem_vs_stem("bow")
     # best_dataset("bow")
-    # mlp_finetune("tokens_pos", "class_label", "bow")
+    mlp_finetune("tokens_pos", "class_label", "bow")
 
 
 
