@@ -2,7 +2,7 @@ import pandas as pd
 import pickle
 from sklearn.feature_extraction.text import CountVectorizer, TfidfVectorizer
 from sklearn.model_selection import train_test_split
-from scipy.sparse import save_npz, load_npz
+from scipy.sparse import save_npz, load_npz, hstack
 
 def dataset_split(df):
     # split dataset into training and test sets
@@ -111,6 +111,37 @@ def tfidf(target_csv, column, folder):
     save_npz(f"{folder}//{target_csv}_train.npz", tfidf_train)
     save_npz(f"{folder}//{target_csv}_test.npz", tfidf_test)
 
+def combine_datasets(v_type):
+    # combine datasets from a list
+    print(f"Combine {v_type} datasets...")
+    # combine tokens + ner for example using hstack?
+    # create a long vector with more data
+    set = ["train", "test"]
+
+    # get training data
+    for t in set:
+
+        tokens_lem = load_npz(f"{v_type}//post-tokens_lem_{t}.npz")
+        tokens_stem = load_npz(f"{v_type}//post-tokens_lem_{t}.npz")
+        entities = load_npz(f"{v_type}//post-entities_{t}.npz")
+        pos = load_npz(f"{v_type}//post-pos_{t}.npz")
+
+        lem_ner = hstack([tokens_lem, entities])
+        stem_ner = hstack([tokens_stem, entities])
+        lem_pos = hstack([tokens_lem, pos])
+        stem_pos = hstack([tokens_stem, pos])
+        lem_ner_pos = hstack([tokens_lem, entities, pos])
+        stem_ner_pos = hstack([tokens_stem, entities, pos])
+
+        save_npz(f"{v_type}//lem_ner_{t}.npz", lem_ner)
+        save_npz(f"{v_type}//stem_ner_{t}.npz", stem_ner)
+        save_npz(f"{v_type}//lem_pos_{t}.npz", lem_pos)
+        save_npz(f"{v_type}//stem_pos_{t}.npz", stem_pos)
+        save_npz(f"{v_type}//lem_ner_pos_{t}.npz", lem_ner_pos)
+        save_npz(f"{v_type}//stem_ner_pos_{t}.npz", stem_ner_pos)
+
+
+
 def test():
     # https://www.geeksforgeeks.org/nlp/vectorization-techniques-in-nlp/
     # https://www.geeksforgeeks.org/nlp/how-to-store-a-tfidfvectorizer-for-future-use-in-scikit-learn/
@@ -121,13 +152,16 @@ def test():
     pass
 
 if __name__ == "__main__":
-    test()
-    bow("post-tokens_lem", "post_tokens", "bow")
-    bow("post-tokens_stem", "post_tokens", "bow")
-    bow("post-entities", "entities", "bow")
-    bow("post-pos", "pos", "bow")
+    # test()
+    # bow("post-tokens_lem", "post_tokens", "bow")
+    # bow("post-tokens_stem", "post_tokens", "bow")
+    # bow("post-entities", "entities", "bow")
+    # bow("post-pos", "pos", "bow")
+    #
+    # tfidf("post-tokens_lem", "post_tokens", "tfidf")
+    # tfidf("post-tokens_stem", "post_tokens", "tfidf")
+    # tfidf("post-entities", "entities", "tfidf")
+    # tfidf("post-pos", "pos", "tfidf")
 
-    tfidf("post-tokens_lem", "post_tokens", "tfidf")
-    tfidf("post-tokens_stem", "post_tokens", "tfidf")
-    tfidf("post-entities", "entities", "tfidf")
-    tfidf("post-pos", "pos", "tfidf")
+    combine_datasets("bow")
+    combine_datasets("tfidf")

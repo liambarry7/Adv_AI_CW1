@@ -2,7 +2,7 @@ from sklearn.metrics import accuracy_score
 from sklearn.model_selection import StratifiedKFold, GridSearchCV
 from sklearn.neural_network import MLPClassifier
 import pandas as pd
-from scipy.sparse import load_npz
+from scipy.sparse import load_npz, hstack
 
 import time
 
@@ -125,5 +125,27 @@ if __name__ == "__main__":
     # test()
     # mlp("bow//post-tokens_lem", "class_label")
     # mlp("bow//post-tokens_lem", "class_label")
-    mlp_finetune("post-tokens_lem", "class_label", "bow")
+    # mlp_finetune("post-tokens_lem", "class_label", "bow") # done
+    mlp_finetune("post-tokens_stem", "class_label", "bow")
+
+    # mlp_finetune("post-tokens_lem", "class_label", "tfidf") # done
+    # mlp_finetune("post-tokens_stem", "class_label", "tfidf")
     # mlp_finetune("post-tokens_lem", "class_label", "tfidf")
+
+
+
+""""
+    Testing plan:
+        - for each v_type:
+            - assess lem vs stem -> winner goes all the way
+            - then winner + pos, winner + ner
+            - then all 3 together (and vs loser all 3 if time)
+            - total = 2 + 2 + 1 (+1?) = 5 runs per v_type
+        
+            - create graphs to compare all runnings
+        
+        - compare best combinations for all v_types and params
+        
+        - repeat for cnn    
+                    
+"""
