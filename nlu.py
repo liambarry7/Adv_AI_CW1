@@ -37,7 +37,7 @@ def tokenise(mode="lem"):
     # remove any duplicates
     df = df.drop_duplicates().reset_index(drop=True)
 
-    
+
 
 
 def syntactic_analysis():
