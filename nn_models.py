@@ -2,7 +2,13 @@ from sklearn.metrics import accuracy_score
 from sklearn.model_selection import StratifiedKFold, GridSearchCV, cross_val_score
 from sklearn.neural_network import MLPClassifier
 import pandas as pd
-from scipy.sparse import load_npz, hstack
+from scipy.sparse import load_npz
+
+import tensorflow as tf
+print(f"tensorflow:{tf.__version__}")
+
+from keras.layers import Input, Conv2D, MaxPooling2D, Dropout, Flatten, Dense
+from keras.models import Model, Sequential
 
 import time
 
@@ -16,20 +22,11 @@ def mlp(target_csv, column):
     training_set = pd.read_csv(f"{target_csv}_training.csv")
     test_set = pd.read_csv(f"{target_csv}_test.csv")
 
-    # training_set = pd.read_csv("bow//post-tokens_lem_training.csv")
-    # test_set = pd.read_csv("bow//post-tokens_lem_test.csv")
-
     train_y = training_set[column]
     test_y = test_set[column]
 
-    # train_y = training_set['class_label']
-    # test_y = test_set['class_label']
-
     train_x = load_npz(f"{target_csv}_train.npz")
     test_x = load_npz(f"{target_csv}_test.npz")
-
-    # train_x = load_npz("bow//post-tokens_lem_train.npz")
-    # test_x = load_npz("bow//post-tokens_lem_test.npz")
 
     mlp.fit(train_x, train_y)
 
@@ -202,6 +199,51 @@ def best_dataset(v_type):
     df = pd.DataFrame(results)
     df.to_csv(f"{v_type}_dataset_comparison_mlp.csv")
 
+def cnn(vectorizerType, target_csv, column):
+    training_set = pd.read_csv(f"{vectorizerType}/{target_csv}_train.csv")
+    test_set = pd.read_csv(f"{vectorizerType}/{target_csv}_test.csv")
+
+    train_y = training_set[column]
+    test_y = test_set[column]
+
+    train_x = load_npz(f"{vectorizerType}/{target_csv}_train.npz")
+    test_x = load_npz(f"{vectorizerType}/{target_csv}_test.npz")
+
+    print(test_x.shape)
+
+    # instantiate a CNN model, Sequential type
+    # cnn_model = Sequential()
+    # # convolutional layer with 32 3x3-filters, and ReLU activation function
+    # cnn_model.add(Conv2D(32, kernel_size=(3, 3), activation="relu",
+    #                      input_shape=(28, 28, 1)))
+    # # stack a MaxPooling layer with 2x2 pool size following the first conv layer
+    # cnn_model.add(MaxPooling2D(pool_size=(2, 2), padding="same"))
+    # # stack a Conv2D layer, with 64 3x3-filters this time
+    # cnn_model.add(Conv2D(64, (3, 3), activation="relu", padding="same"))
+    # # MaxPooling layer
+    # cnn_model.add(MaxPooling2D(pool_size=(2, 2), padding="same"))
+    # # flatten, to make inputs for the MLP neural net
+    # cnn_model.add(Flatten())
+    # # fully connected MLP, with 100 neurons in its first hidden layer
+    # cnn_model.add(Dense(100, activation="relu"))
+    # # dropout set to 50% of randomly selected neurons and their weights
+    # cnn_model.add(Dropout(0.5))
+    # # apply softmax to produce normalised output probabilities
+    # cnn_model.add(Dense(10, activation="softmax"))  # there are 10 classes
+    # cnn_model.summary()  # print the CNN model configuration to the console
+
+    # cnn_model.compile(loss="categorical_crossentropy", optimizer="adam",
+    #                   metrics=["accuracy"])
+    # batch_size = 128  # set the batch size for updating weights
+    # num_epochs = 5  # train the model for 5 epochs
+    # # train the model, set "verbose=1" to show the training process
+    # model_log = cnn_model.fit(train_x, train_y, batch_size=batch_size,
+    #                           epochs=num_epochs, validation_data=(test_x, test_y), verbose=1)
+    #
+    # score = Model.evaluate(test_x, test_y, verbose=1)
+    # print(f"Test loss: {score[0]}")
+    # print(f"Test accuracy: {score[1]}")
+
 
 def compare():
     # plot models accuracy against time taken
@@ -215,16 +257,15 @@ if __name__ == "__main__":
     # tfidf
     # lem_vs_stem("tfidf")
     # best_dataset("tfidf")
-
     # mlp_finetune("tokens_pos", "class_label", "tfidf") # 3164.secs
 
     # BoW
     # lem_vs_stem("bow")
     # best_dataset("bow")
-    mlp_finetune("tokens_pos", "class_label", "bow")
+    # mlp_finetune("tokens_pos", "class_label", "bow")
 
 
-
+    cnn("tfidf", "tokens_pos", "class_label")
     # best_dataset("bow")
 
 """"
@@ -235,7 +276,7 @@ if __name__ == "__main__":
     ************************
     
     reduction strategy:
-        - for each vectorization type: - wrong, only need one, this is about the classifiers
+        - for each vectorization type: 
             - for each dataset:
                 - assess lem vs stem in cross validation -> best stays on == STEM
                 - create lem or stem with  pos

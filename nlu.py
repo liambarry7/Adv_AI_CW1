@@ -1,5 +1,10 @@
+import pickle
+
 import pandas as pd
-from vectorization import combine_datasets
+from sklearn.decomposition import LatentDirichletAllocation
+from scipy.sparse import load_npz
+
+
 """
     - use NLU & NLP to explore and analyse content in docuemtns and their linked news headlines
     to automatically discover topics across text data
@@ -18,40 +23,44 @@ from vectorization import combine_datasets
     -> vectorise the tokens, then put into LDA for topic extraction
     -> compare the effectiveness of different vectorisation techniques
 
-    - get intent from sentences
-    - use synonym lists
+    - get intent from sentences?
+    - use synonym lists?
+    
+    
+    - get headlines topics, get post topics
+    - see link between headlines topics and all of their posts' topics
+    - link to both headlines and post class labels
 
 
 """
 
-def tokenise(mode="lem"):
-    df = pd.read_csv("raw_datasets/social-media-release.csv")
-
-    # print any rows with nan values
-    nan_rows = df[df.isna().any(axis=1)]
-    print(f"nan rows: {nan_rows}")
-
-    # if row contains null value, remove
-    df = df.dropna().reset_index(drop=True)
-
-    # remove any duplicates
-    df = df.drop_duplicates().reset_index(drop=True)
 
 
 
 
-def syntactic_analysis():
-    # get tokens (already parsed, stop word removed etc)
-    lem_t = pd.read_csv("raw_datasets//post-tokens_lem.csv")
-    stem_t = pd.read_csv("raw_datasets//post-tokens_stem.csv")
+def get_topics(feature_vector, n_topics):
+    # extract topic from tokens
+    lda_model = LatentDirichletAllocation(n_components=n_topics, learning_method='online', random_state=42, max_iter=10)
+    lda_model.fit(feature_vector)  # train the model
 
-    # tokenise headlines
+    # print the topic probability distribution for each document
+    lda_top = lda_model.fit_transform(feature_vector)
+    print(lda_top.shape)
+    print(lda_top)
 
-    # turn tokens into word vectors
+    # assess LDA model
+    # perplexity
+    perplexity = lda_model.perplexity(feature_vector)
+    print(f"Perplexity: {perplexity}")
 
-    # pass word vectors into lda to discover latent topics
+    # topic correlation
+    import pandas as pd
+    doc_topic_distribution = lda_model.transform(feature_vector)
+    print(doc_topic_distribution.shape)
+    topic_correlation = pd.DataFrame(doc_topic_distribution).corr()
+    print(topic_correlation)
 
-    pass
+
 
 
 def test():
@@ -61,5 +70,11 @@ def test():
 
 if __name__ == "__main__":
     test()
+
+    x = load_npz("nlu_data/tokens_lem_headline.npz")
+    x2 = load_npz("nlu_data/tokens_lem_post.npz")
+    print(type(x))
+    # get_topics(x, 5)
+    get_topics(x2, 5)
 
 

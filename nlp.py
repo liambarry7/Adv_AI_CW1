@@ -7,7 +7,6 @@ import pandas as pd
 def text_tokenizing_lem(text):
     tokens = []
 
-    ps = PorterStemmer()
     doc = nlp(text.lower())  # lowercase string
     for token in doc:
         # ignore whitespace, punc, stop words and only accept words (e.g. not numbers, symbols)
@@ -191,6 +190,35 @@ def get_pos():
 
     df_final.to_csv(f"raw_datasets//post-pos.csv", index=False)
 
+def tokens_for_topics(mode="lem"):
+    df = pd.read_csv("raw_datasets/social-media-release.csv")
+
+    # print any rows with nan values
+    nan_rows = df[df.isna().any(axis=1)]
+    print(f"nan rows: {nan_rows}")
+
+    # if row contains null value, remove
+    df = df.dropna().reset_index(drop=True)
+
+    # remove any duplicates
+    df = df.drop_duplicates().reset_index(drop=True)
+
+    if mode == "stem":
+        df['headline_tokens'] = df['news_headline'].apply(text_tokenizing_stem)
+        df['post_tokens'] = df['post'].apply(text_tokenizing_stem)
+
+    else:
+        df['post_tokens'] = df['post'].apply(text_tokenizing_lem)
+        df['headline_tokens'] = df['news_headline'].apply(text_tokenizing_lem)
+
+    # encode class label and headlines truth label
+    df['class_label'] = df['class_label'].astype('category').cat.codes
+    df['news_headline_ground_truth'] = df['news_headline_ground_truth'].astype('category').cat.codes
+
+    df_final = df[['id', 'news_headline_ground_truth', 'headline_tokens', 'class_label', 'post_tokens']]
+
+    df_final.to_csv(f"nlu_data//tokens_{mode}.csv", index=False)
+
 
 def test():
 
@@ -224,5 +252,8 @@ if __name__ == "__main__":
 
     # text_preprocess("lem")
     # text_preprocess("stem")
-    get_entities()
+    # get_entities()
     # get_pos()
+
+    # tokens_for_topics("lem")
+    tokens_for_topics("stem")

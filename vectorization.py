@@ -64,6 +64,41 @@ def bow(target_csv, column, folder):
     save_npz(f"{folder}//{target_csv}_test.npz", bow_tokens_test)
 
 
+def nlu_tfidf(v_type, target_csv, folder):
+    # get csv
+    df = pd.read_csv(f"{folder}//{target_csv}.csv")
+
+    # check for any nans
+    nan_rows = df[df.isna().any(axis=1)]
+    print(f"nan rows: {nan_rows}")
+    ready_df = df.dropna().reset_index(drop=True)
+
+    nan_rows2 = ready_df[ready_df.isna().any(axis=1)]
+    print(f"nan rows: {nan_rows2}")
+
+    # create TFIDF vectorizer
+    tfidf_v_hd = TfidfVectorizer(min_df=10)  # for headlines
+    tfidf_v_pt = TfidfVectorizer(min_df=10)  # for post tokens
+
+    # vectorize the data
+    headline_v = tfidf_v_hd.fit_transform(ready_df['headline_tokens'])
+    post_v = tfidf_v_pt.fit_transform(ready_df['post_tokens'])
+
+    print(len(tfidf_v_hd.get_feature_names_out())) #1912
+    print(len(tfidf_v_pt.get_feature_names_out())) #7899
+
+    # Save the vectorizer using pickle
+    with open(f'{folder}//{target_csv}_tfidf_v_hd.pkl', 'wb') as file:
+        pickle.dump(tfidf_v_hd, file)
+
+    with open(f'{folder}//{target_csv}_tfidf_v_pt.pkl', 'wb') as file:
+        pickle.dump(tfidf_v_hd, file)
+
+    # save the feature vectors
+    save_npz(f"{folder}//{target_csv}_headline.npz", headline_v)
+    save_npz(f"{folder}//{target_csv}_post.npz", post_v)
+
+
 def tfidf(target_csv, column, folder, raw=0):
     # target_csv = file being read (e.g. post-tokens-lem)
     # column = column being vectorized
@@ -83,7 +118,7 @@ def tfidf(target_csv, column, folder, raw=0):
     # split the dataset before vectorization
     training_set, test_set = dataset_split(ready_df)
 
-    # create BoW vectorizer
+    # create TFIDF vectorizer
     tfidf_v = TfidfVectorizer(min_df=10) # only include words that appear in 10 > documents
 
     # fit_transform the training data - context week 4 lab part c
@@ -186,9 +221,9 @@ if __name__ == "__main__":
     # test()
 
     # task one
-    create_bow()
+    # create_bow()
     # create_tfidf()
 
     # task two
-
+    nlu_tfidf("tfidf", "tokens_lem", "nlu_data")
 
