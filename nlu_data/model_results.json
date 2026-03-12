@@ -1,0 +1,14 @@
+{
+    "model_results": [
+        {
+            "v_type": "tfidf",
+            "n_components": 10,
+            "max_iter": 50,
+            "avg_similarity": 0.724878153331369,
+            "min_similarity": 0.09230774825282109,
+            "max_similarity": 1.0000000000000004,
+            "median_similarity": 0.744148696234881,
+            "total_time": 684.757709980011
+        }
+    ]
+}
