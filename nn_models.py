@@ -7,20 +7,20 @@ from scipy.sparse import load_npz
 import tensorflow as tf
 print(f"tensorflow:{tf.__version__}")
 
-from keras.layers import Input, Conv2D, MaxPooling2D, Dropout, Flatten, Dense
+from keras.layers import Input, Conv1D, Dropout, Flatten, Dense, Embedding, GlobalMaxPooling1D
 from keras.models import Model, Sequential
 
 import time
 
-def mlp(target_csv, column):
+def mlp(v_type, target_csv, params, column):
 
     start = time.time()
 
     # mlp = MLPClassifier(hidden_layer_sizes=(64,32), max_iter=1000, early_stopping=True)
     mlp = MLPClassifier(max_iter=1000, early_stopping=True)
 
-    training_set = pd.read_csv(f"{target_csv}_training.csv")
-    test_set = pd.read_csv(f"{target_csv}_test.csv")
+    training_set = pd.read_csv(f"{v_type}//{target_csv}_train.csv")
+    test_set = pd.read_csv(f"{v_type}//{target_csv}_test.csv")
 
     train_y = training_set[column]
     test_y = test_set[column]
@@ -206,43 +206,45 @@ def cnn(vectorizerType, target_csv, column):
     train_y = training_set[column]
     test_y = test_set[column]
 
-    train_x = load_npz(f"{vectorizerType}/{target_csv}_train.npz")
-    test_x = load_npz(f"{vectorizerType}/{target_csv}_test.npz")
+    train_x = load_npz(f"{vectorizerType}/{target_csv}_train.npz").toarray()
+    test_x = load_npz(f"{vectorizerType}/{target_csv}_test.npz").toarray()
 
     print(test_x.shape)
 
-    # instantiate a CNN model, Sequential type
-    # cnn_model = Sequential()
-    # # convolutional layer with 32 3x3-filters, and ReLU activation function
-    # cnn_model.add(Conv2D(32, kernel_size=(3, 3), activation="relu",
-    #                      input_shape=(28, 28, 1)))
-    # # stack a MaxPooling layer with 2x2 pool size following the first conv layer
-    # cnn_model.add(MaxPooling2D(pool_size=(2, 2), padding="same"))
-    # # stack a Conv2D layer, with 64 3x3-filters this time
-    # cnn_model.add(Conv2D(64, (3, 3), activation="relu", padding="same"))
-    # # MaxPooling layer
-    # cnn_model.add(MaxPooling2D(pool_size=(2, 2), padding="same"))
-    # # flatten, to make inputs for the MLP neural net
-    # cnn_model.add(Flatten())
-    # # fully connected MLP, with 100 neurons in its first hidden layer
-    # cnn_model.add(Dense(100, activation="relu"))
-    # # dropout set to 50% of randomly selected neurons and their weights
-    # cnn_model.add(Dropout(0.5))
-    # # apply softmax to produce normalised output probabilities
-    # cnn_model.add(Dense(10, activation="softmax"))  # there are 10 classes
-    # cnn_model.summary()  # print the CNN model configuration to the console
+    max_len = train_x.shape[1]
 
-    # cnn_model.compile(loss="categorical_crossentropy", optimizer="adam",
-    #                   metrics=["accuracy"])
-    # batch_size = 128  # set the batch size for updating weights
-    # num_epochs = 5  # train the model for 5 epochs
-    # # train the model, set "verbose=1" to show the training process
-    # model_log = cnn_model.fit(train_x, train_y, batch_size=batch_size,
-    #                           epochs=num_epochs, validation_data=(test_x, test_y), verbose=1)
-    #
-    # score = Model.evaluate(test_x, test_y, verbose=1)
-    # print(f"Test loss: {score[0]}")
-    # print(f"Test accuracy: {score[1]}")
+    # expects 3D tensor = (Batch size, sequence length, embedding dimensions)
+    train_x = train_x.reshape(train_x.shape[0], max_len, 1)
+    test_x = test_x.reshape(test_x.shape[0], max_len, 1)
+
+    # input_dim = no of unique tokens
+    # output_dim = size of word vector
+
+    # filters = no of feature detectors
+    # kernel_size = no of words looked at at once
+
+    # instantiate a CNN model, Sequential type
+    cnn_model = Sequential([
+        Conv1D(filters=128, kernel_size=5, input_shape=(max_len, 1), activation='relu'),
+        GlobalMaxPooling1D(),
+        Dense(64, activation='relu'),
+        Dropout(0.5),
+        Dense(1, activation='sigmoid')
+    ])
+
+    cnn_model.compile(optimizer='adam', loss='binary_crossentropy', metrics=['accuracy'])
+
+    # fine tune: filters, kernel_size, dropout_rate
+
+    batch_size = 128  # set the batch size for updating weights
+    num_epochs = 5  # train the model for 5 epochs
+    # train the model, set "verbose=1" to show the training process
+    model_log = cnn_model.fit(train_x, train_y, batch_size=batch_size,
+                              epochs=num_epochs, validation_data=(test_x, test_y), verbose=1)
+
+    score = cnn_model.evaluate(test_x, test_y, verbose=1)
+    print(f"Test loss: {score[0]}")
+    print(f"Test accuracy: {score[1]}")
 
 
 def compare():

@@ -98,28 +98,39 @@ def nlu_tfidf(v_type, target_csv, folder):
     save_npz(f"{folder}//{target_csv}_tfidf_headline.npz", headline_tfidf)
     save_npz(f"{folder}//{target_csv}_tfidf_post.npz", post_tfidf)
 
-    # # create TFIDF vectorizer
-    # tfidf_v_hd = TfidfVectorizer(min_df=10)  # for headlines
-    # tfidf_v_pt = TfidfVectorizer(min_df=10)  # for post tokens
-    #
-    # # vectorize the data
-    # headline_v = tfidf_v_hd.fit_transform(ready_df['headline_tokens'])
-    # post_v = tfidf_v_pt.fit_transform(ready_df['post_tokens'])
-    #
-    # print(len(tfidf_v_hd.get_feature_names_out())) #1912
-    # print(len(tfidf_v_pt.get_feature_names_out())) #7899
-    #
-    # # Save the vectorizer using pickle
-    # with open(f'{folder}//{target_csv}_tfidf_v_hd.pkl', 'wb') as file:
-    #     pickle.dump(tfidf_v_hd, file)
-    #
-    # with open(f'{folder}//{target_csv}_tfidf_v_pt.pkl', 'wb') as file:
-    #     pickle.dump(tfidf_v_hd, file)
-    #
-    # # save the feature vectors
-    # save_npz(f"{folder}//{target_csv}_headline.npz", headline_v)
-    # save_npz(f"{folder}//{target_csv}_post.npz", post_v)
+def nlu_bow(v_type, target_csv, folder):
+    # get csv
+    df = pd.read_csv(f"{folder}//{target_csv}.csv")
 
+    # check for any nans
+    nan_rows = df[df.isna().any(axis=1)]
+    print(f"nan rows: {nan_rows}")
+    ready_df = df.dropna().reset_index(drop=True)
+
+    nan_rows2 = ready_df[ready_df.isna().any(axis=1)]
+    print(f"nan rows: {nan_rows2}")
+
+    # create one long vector of headlines and tokens
+    ready_df['full_tokens'] = ready_df["headline_tokens"] + " " + ready_df["post_tokens"]
+
+
+    # create TFIDF vectorizer
+    bow_v = CountVectorizer(min_df=10)
+
+    # train vector on all tokens
+    bow_v.fit_transform(ready_df['full_tokens']) # train on full data
+
+    # create vectors for headlines and posts
+    headline_bow = bow_v.transform(ready_df['headline_tokens'])
+    post_bow = bow_v.transform(ready_df['post_tokens'])
+
+    # save vectorizer, and vectors
+    with open(f'{folder}//bow_v.pkl', 'wb') as file:
+        pickle.dump(bow_v, file)
+
+    # save_npz(f"{folder}//{target_csv}_full.npz", )
+    save_npz(f"{folder}//{target_csv}_bow_headline.npz", headline_bow)
+    save_npz(f"{folder}//{target_csv}_bow_post.npz", post_bow)
 
 def tfidf(target_csv, column, folder, raw=0):
     # target_csv = file being read (e.g. post-tokens-lem)
@@ -248,5 +259,6 @@ if __name__ == "__main__":
 
     # task two
     # nlu_tfidf("tfidf", "tokens_lem", "nlu_data")
-    nlu_tfidf("tfidf", "tokens_lem", "nlu_data")
+    # nlu_tfidf("tfidf", "tokens_lem", "nlu_data")
+    nlu_bow("bow", "tokens_lem", "nlu_data")
 
