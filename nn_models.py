@@ -200,6 +200,7 @@ def best_dataset(v_type):
     df.to_csv(f"{v_type}_dataset_comparison_mlp.csv")
 
 def cnn(vectorizerType, target_csv, column):
+    # https://www.geeksforgeeks.org/nlp/text-classification-using-cnn/
     training_set = pd.read_csv(f"{vectorizerType}/{target_csv}_train.csv")
     test_set = pd.read_csv(f"{vectorizerType}/{target_csv}_test.csv")
 
@@ -227,8 +228,10 @@ def cnn(vectorizerType, target_csv, column):
     cnn_model = Sequential([
         Conv1D(filters=128, kernel_size=5, input_shape=(max_len, 1), activation='relu'),
         GlobalMaxPooling1D(),
-        Dense(64, activation='relu'),
+        Dense(128, activation='relu'),
         Dropout(0.5),
+        Dense(64, activation='relu'),
+        Dropout(0.3),
         Dense(1, activation='sigmoid')
     ])
 
