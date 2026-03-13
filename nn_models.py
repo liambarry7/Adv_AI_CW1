@@ -208,7 +208,7 @@ def get_cnn_model(filters, kernel_size, max_len, learning_rate):
 
     # instantiate a CNN model, Sequential type
     cnn_model = Sequential([
-        Conv1D(filters=128, kernel_size=5, input_shape=(max_len, 1), activation='relu'),
+        Conv1D(filters=filters, kernel_size=kernel_size, input_shape=(max_len, 1), activation='relu'),
         GlobalMaxPooling1D(),
         Dense(128, activation='relu'),
         Dropout(0.5),

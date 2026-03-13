@@ -1,22 +1,5 @@
 {
     "model_results": [
-        {
-            "v_type": "tfidf",
-            "filter": 128,
-            "kernel_size": 3,
-            "learning_rate": 0.001,
-            "test_loss": 0.6805986166000366,
-            "test_acc": 0.5780031085014343,
-            "total_time": 1456.1250455379486
-        },
-        {
-            "v_type": "tfidf",
-            "filter": 128,
-            "kernel_size": 3,
-            "learning_rate": 0.0001,
-            "test_loss": 0.6808565258979797,
-            "test_acc": 0.5780031085014343,
-            "total_time": 22066.302054405212
-        }
+        
     ]
 }
