@@ -7,9 +7,11 @@ from scipy.sparse import load_npz
 import tensorflow as tf
 print(f"tensorflow:{tf.__version__}")
 
-from keras.layers import Input, Conv1D, Dropout, Flatten, Dense, Embedding, GlobalMaxPooling1D
-from keras.models import Model, Sequential
-
+from keras.layers import Conv1D, Dropout, Dense, GlobalMaxPooling1D
+from keras.models import Sequential
+from keras.callbacks import EarlyStopping
+from keras.optimizers import Adam
+import json
 import time
 
 def mlp(v_type, target_csv, params, column):
@@ -199,6 +201,92 @@ def best_dataset(v_type):
     df = pd.DataFrame(results)
     df.to_csv(f"{v_type}_dataset_comparison_mlp.csv")
 
+def get_cnn_model(filters, kernel_size, max_len, learning_rate):
+    # https://www.geeksforgeeks.org/nlp/text-classification-using-cnn/
+    # input_dim = no of unique tokens
+    # output_dim = size of word vector
+
+    # filters = no of feature detectors
+    # kernel_size = no of words looked at at once
+
+    # instantiate a CNN model, Sequential type
+    cnn_model = Sequential([
+        Conv1D(filters=128, kernel_size=5, input_shape=(max_len, 1), activation='relu'),
+        GlobalMaxPooling1D(),
+        Dense(128, activation='relu'),
+        Dropout(0.5),
+        Dense(64, activation='relu'),
+        Dropout(0.3),
+        Dense(1, activation='sigmoid')
+    ])
+
+    cnn_model.compile(optimizer=Adam(learning_rate=learning_rate), loss='binary_crossentropy', metrics=['accuracy'])
+
+    return cnn_model
+
+def fine_tune_cnn(vectorizerType, target_csv, column):
+    # get datasets
+    training_set = pd.read_csv(f"{vectorizerType}/{target_csv}_train.csv")
+    test_set = pd.read_csv(f"{vectorizerType}/{target_csv}_test.csv")
+
+    train_y = training_set[column]
+    test_y = test_set[column]
+
+    train_x = load_npz(f"{vectorizerType}/{target_csv}_train.npz").toarray()
+    test_x = load_npz(f"{vectorizerType}/{target_csv}_test.npz").toarray()
+
+    print(test_x.shape)
+
+    # set max_len param
+    max_len = train_x.shape[1]
+
+    # expects 3D tensor = (Batch size, sequence length, embedding dimensions)
+    train_x = train_x.reshape(train_x.shape[0], max_len, 1)
+    test_x = test_x.reshape(test_x.shape[0], max_len, 1)
+
+    filters = [128, 64, 32]
+    kernel_sizes = [3, 5]
+    learning_rates = [0.001, 0.0001]
+
+    for f in filters:
+        for k in kernel_sizes:
+            for l in learning_rates:
+                cnn_model = get_cnn_model(f, k, max_len, l)
+                start = time.time()
+
+                # train the model, set "verbose=1" to show the training process
+                model_log = cnn_model.fit(train_x, train_y, batch_size=128,
+                                          epochs=5, validation_data=(test_x, test_y),
+                                          callbacks=EarlyStopping(monitor='val_loss',
+                                                                  patience = 2,
+                                                                  restore_best_weights=True),
+                                          verbose=1)
+                end = time.time()
+
+                score = cnn_model.evaluate(test_x, test_y, verbose=1)
+                print(f"Test loss: {score[0]}")
+                print(f"Test accuracy: {score[1]}")
+
+                total_time = end - start
+
+                model_data = {
+                    "v_type": vectorizerType,
+                    "filter": f,
+                    "kernel_size": k,
+                    "learning_rate": l,
+                    "test_loss": score[0],
+                    "test_acc": score[1],
+                    "total_time": total_time
+                }
+
+                with open(f"ft_results//cnn_ft.json", "r") as file:
+                    model_rs = json.load(file)
+
+                model_rs['model_results'].append(model_data)
+
+                with open(f"ft_results//cnn_ft.json", "w") as file:
+                    json.dump(model_rs, file, indent=4)
+
 def cnn(vectorizerType, target_csv, column):
     # https://www.geeksforgeeks.org/nlp/text-classification-using-cnn/
     training_set = pd.read_csv(f"{vectorizerType}/{target_csv}_train.csv")
@@ -235,7 +323,7 @@ def cnn(vectorizerType, target_csv, column):
         Dense(1, activation='sigmoid')
     ])
 
-    cnn_model.compile(optimizer='adam', loss='binary_crossentropy', metrics=['accuracy'])
+    cnn_model.compile(optimizer=Adam(learning_rate=0.001), loss='binary_crossentropy', metrics=['accuracy'])
 
     # fine tune: filters, kernel_size, dropout_rate
 
@@ -270,8 +358,9 @@ if __name__ == "__main__":
     # mlp_finetune("tokens_pos", "class_label", "bow")
 
 
-    cnn("tfidf", "tokens_pos", "class_label")
-    # best_dataset("bow")
+    # cnn("tfidf", "tokens_pos", "class_label")
+    fine_tune_cnn("tfidf", "tokens_pos", "class_label")
+    # fine_tune_cnn("bow", "tokens_pos", "class_label")
 
 """"
         
