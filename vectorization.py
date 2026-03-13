@@ -195,16 +195,6 @@ def combine_datasets(v_type, file1, file2, columns, name):
     combined.drop(columns=columns, inplace=True)
     combined.to_csv(f"{v_type}//{name}.csv", index=False)
 
-    # for i in ["train", "test"]:
-    #     # combine two datasets together where doc ID match
-    #     df1 = pd.read_csv(f"{v_type}//{file1}_{i}.csv")
-    #     df2 = pd.read_csv(f"{v_type}//{file2}_{i}.csv")
-    #
-    #     combined = pd.merge(df1, df2, on=["id", "class_label"], how="inner")
-    #     print(combined.columns)
-    #     combined['tokens'] = combined[columns[0]] + " " + combined[columns[1]]
-    #     combined.drop(columns=columns, inplace=True)
-    #     combined.to_csv(f"{v_type}//{name}_{i}.csv", index=False)
 
 
 
@@ -235,19 +225,19 @@ def create_tfidf():
 
 def create_bow():
     # create lem and stem tokens
-    tfidf("post-tokens_lem", "post_tokens", "bow")
-    tfidf("post-tokens_stem", "post_tokens", "bow")
+    bow("post-tokens_lem", "post_tokens", "bow")
+    bow("post-tokens_stem", "post_tokens", "bow")
 
     # # create ner and pos vectors
     # tfidf("post-entities", "entities", "tfidf")
-    tfidf("post-pos", "pos", "bow")
+    bow("post-pos", "pos", "bow")
 
     # stem == better dataset (check lem vs stem csv), quicker and same accuracy
     # combine datasets -> add csv files together, then vectorize
     combine_datasets("raw_datasets", "post-tokens_stem", "post-pos", ["post_tokens", "pos"], "tokens_pos")
 
     # create token-pos vector
-    tfidf("tokens_pos", "tokens", "bow")
+    bow("tokens_pos", "tokens", "bow")
 
 
 if __name__ == "__main__":
