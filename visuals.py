@@ -3,9 +3,6 @@ import pandas as pd
 import numpy as np
 import json
 
-def create_dataset_comp():
-    pass
-
 
 def create_mlp_graphs():
     # plot scatter between tfidf and bow fine-tunings
@@ -23,10 +20,27 @@ def create_mlp_graphs():
     plt.savefig("graphs//mlp_ft_comparison.png")
     plt.show()
 
+def dataset_graphs(v_type):
+    if v_type == 'tfidf':
+        color = "blue"
+    elif v_type == 'bow':
+        color = "orange"
+    df = pd.read_csv(f"{v_type}_dataset_comparison_mlp.csv")
+    plt.bar(df['name'], df['mean_cv_accuracy'], color=color)
+    plt.title(f"{v_type} Dataset Comparison")
+    plt.xlabel("Dataset")
+    plt.ylabel("Accuracy")
+    plt.savefig(f"graphs//{v_type}_dataset_comparison.png")
+    plt.show()
+
 def create_cnn_graphs():
     pass
 
 def compare_nn():
+    # create bar chart of accuracy
+
+    # mlp accuracy = 0.921
+    # cnn accuracy = 0.
     pass
 
 def add_labels(x, y, t1, t2):
@@ -81,12 +95,8 @@ def create_topic_graphs():
 
 
 
-def test():
-
-    pass
-
-
 if __name__ == "__main__":
-    test()
     # create_mlp_graphs()
-    create_topic_graphs()
+    # create_topic_graphs()
+    dataset_graphs("bow")
+    dataset_graphs("tfidf")

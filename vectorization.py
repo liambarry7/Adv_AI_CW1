@@ -249,6 +249,5 @@ if __name__ == "__main__":
 
     # task two
     # nlu_tfidf("tfidf", "tokens_lem", "nlu_data")
-    # nlu_tfidf("tfidf", "tokens_lem", "nlu_data")
     nlu_bow("bow", "tokens_lem", "nlu_data")
 

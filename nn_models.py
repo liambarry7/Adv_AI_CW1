@@ -6,7 +6,7 @@ from scipy.sparse import load_npz
 import pickle
 
 import tensorflow as tf
-print(f"tensorflow:{tf.__version__}")
+# print(f"tensorflow:{tf.__version__}")
 
 from keras.layers import Conv1D, Dropout, Dense, GlobalMaxPooling1D
 from keras.models import Sequential
@@ -22,12 +22,12 @@ def mlp(v_type, target_csv, column):
     training_set = pd.read_csv(f"{v_type}//{target_csv}_train.csv")
     train_y = training_set[column]
 
-    train_x = load_npz(f"{target_csv}_train.npz")
+    train_x = load_npz(f"{v_type}//{target_csv}_train.npz")
 
     mlp.fit(train_x, train_y)
 
     # save model
-    with open('best_bow_mlp.pkl', 'wb') as file:
+    with open(f'best_{v_type}_mlp.pkl', 'wb') as file:
         pickle.dump(mlp, file)
 
 def test_mlp(vectorizerType, target_csv, column):
@@ -50,7 +50,8 @@ def test_mlp(vectorizerType, target_csv, column):
     y_predictions = mlp.predict(test_x)
 
     print(y_predictions)
-    print(f"Accuracy: {accuracy_score(test_y, y_predictions)}")
+    print(f"Accuracy: {accuracy_score(test_y, y_predictions)}") # Accuracy: 0.9217182973033207
+
 
 
 def mlp_finetune(target_csv, column, vectorizerType):
@@ -216,7 +217,8 @@ def get_cnn_model(filters, kernel_size, max_len, learning_rate):
         Dense(1, activation='sigmoid')
     ])
 
-    cnn_model.compile(optimizer=Adam(learning_rate=learning_rate), loss='binary_crossentropy', metrics=['accuracy'])
+    cnn_model.compile(optimizer=Adam(learning_rate=learning_rate),
+                      loss='binary_crossentropy', metrics=['accuracy'])
 
     return cnn_model
 
@@ -240,7 +242,7 @@ def fine_tune_cnn(vectorizerType, target_csv, column):
     train_x = train_x.reshape(train_x.shape[0], max_len, 1)
     test_x = test_x.reshape(test_x.shape[0], max_len, 1)
 
-    filters = [128, 64, 32]
+    filters = [128, 64]
     kernel_sizes = [3, 5]
     learning_rates = [0.001, 0.0001]
 
@@ -333,14 +335,13 @@ def cnn(vectorizerType, target_csv, column):
     print(f"Test loss: {score[0]}")
     print(f"Test accuracy: {score[1]}")
 
-
-def compare():
-    # plot models accuracy against time taken
-    pass
+    # save trained model
+    # save model
+    with open('best_bow_cnn.pkl', 'wb') as file:
+        pickle.dump(mlp, file)
 
 
 if __name__ == "__main__":
-    # test()
     # lem_vs_stem("bow")
 
     # tfidf
@@ -353,22 +354,11 @@ if __name__ == "__main__":
     # best_dataset("bow")
     # mlp_finetune("tokens_pos", "class_label", "bow")
 
+    # train and save the best model
+    # mlp("bow", "tokens_pos", "class_label")
+    # mlp("tfidf", "tokens_pos", "class_label")
+    # test_mlp("bow", "tokens_pos", "class_label")
 
     # cnn("tfidf", "tokens_pos", "class_label")
-    fine_tune_cnn("tfidf", "tokens_pos", "class_label")
-    # fine_tune_cnn("bow", "tokens_pos", "class_label")
-
-""""
-        
-    ************************
-    
-    reduction strategy:
-        - for each vectorization type: 
-            - for each dataset:
-                - assess lem vs stem in cross validation -> best stays on == STEM
-                - create lem or stem with  pos
-                - cross val to get best dataset overall
-            - fine tune with best dataset
-            - save results and compare
-                    
-"""
+    # fine_tune_cnn("tfidf", "tokens_pos", "class_label")
+    fine_tune_cnn("bow", "tokens_pos", "class_label")
