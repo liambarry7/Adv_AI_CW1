@@ -44,10 +44,11 @@ def text_tokenizing_stem(text):
     else:
         return ' '.join(tokens)
 
-def text_preprocess(mode="lem"):
+def text_preprocess(target_csv, mode="lem"):
     # tokenise text and save to csv file
 
-    df = pd.read_csv("raw_datasets/social-media-release.csv")
+    # df = pd.read_csv("raw_datasets/social-media-release.csv")
+    df = pd.read_csv(f"{target_csv}")
 
     # print any rows with nan values
     nan_rows = df[df.isna().any(axis=1)]
@@ -157,10 +158,11 @@ def pos(text):
         return ' '.join(tokens)
 
 
-def get_pos():
+def get_pos(target_csv):
     # get text entities and save to csv file
 
-    df = pd.read_csv("raw_datasets/social-media-release.csv")
+    # df = pd.read_csv("raw_datasets/social-media-release.csv")
+    df = pd.read_csv(f"{target_csv}")
 
     # print any rows with nan values
     nan_rows = df[df.isna().any(axis=1)]
@@ -190,8 +192,9 @@ def get_pos():
 
     df_final.to_csv(f"raw_datasets//post-pos.csv", index=False)
 
-def tokens_for_topics(mode="lem"):
-    df = pd.read_csv("raw_datasets/social-media-release.csv")
+def tokens_for_topics(target_csv, mode="lem"):
+    # df = pd.read_csv("raw_datasets/social-media-release.csv")
+    df = pd.read_csv(f"{target_csv}")
 
     # print any rows with nan values
     nan_rows = df[df.isna().any(axis=1)]
@@ -250,10 +253,10 @@ if __name__ == "__main__":
     nlp = spacy.load('en_core_web_sm')
     # test()
 
-    # text_preprocess("lem")
-    # text_preprocess("stem")
-    # get_entities()
-    # get_pos()
+    # text_preprocess("raw_datasets/social-media-release.csv", "lem")
+    # text_preprocess("raw_datasets/social-media-release.csv", "stem")
+    # get_entities("raw_datasets/social-media-release.csv")
+    # get_pos("raw_datasets/social-media-release.csv")
 
-    # tokens_for_topics("lem")
-    tokens_for_topics("stem")
+    # tokens_for_topics("raw_datasets/social-media-release.csv", "lem")
+    tokens_for_topics("raw_datasets/social-media-release.csv", "stem")

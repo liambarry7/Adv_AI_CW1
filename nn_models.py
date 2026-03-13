@@ -3,6 +3,7 @@ from sklearn.model_selection import StratifiedKFold, GridSearchCV, cross_val_sco
 from sklearn.neural_network import MLPClassifier
 import pandas as pd
 from scipy.sparse import load_npz
+import pickle
 
 import tensorflow as tf
 print(f"tensorflow:{tf.__version__}")
@@ -14,45 +15,42 @@ from keras.optimizers import Adam
 import json
 import time
 
-def mlp(v_type, target_csv, params, column):
-
-    start = time.time()
-
-    # mlp = MLPClassifier(hidden_layer_sizes=(64,32), max_iter=1000, early_stopping=True)
-    mlp = MLPClassifier(max_iter=1000, early_stopping=True)
+def mlp(v_type, target_csv, column):
+    # relu,"(64, 32)",adaptive
+    mlp = MLPClassifier(activation= 'relu', hidden_layer_sizes=(64,32), learning_rate='adaptive', max_iter=1000, early_stopping=True)
 
     training_set = pd.read_csv(f"{v_type}//{target_csv}_train.csv")
-    test_set = pd.read_csv(f"{v_type}//{target_csv}_test.csv")
+    train_y = training_set[column]
+
+    train_x = load_npz(f"{target_csv}_train.npz")
+
+    mlp.fit(train_x, train_y)
+
+    # save model
+    with open('best_bow_mlp.pkl', 'wb') as file:
+        pickle.dump(mlp, file)
+
+def test_mlp(vectorizerType, target_csv, column):
+    # get datasets
+    training_set = pd.read_csv(f"{vectorizerType}//{target_csv}_train.csv")
+    test_set = pd.read_csv(f"{vectorizerType}//{target_csv}_test.csv")
 
     train_y = training_set[column]
     test_y = test_set[column]
 
-    train_x = load_npz(f"{target_csv}_train.npz")
-    test_x = load_npz(f"{target_csv}_test.npz")
+    train_x = load_npz(f"{vectorizerType}//{target_csv}_train.npz")
+    test_x = load_npz(f"{vectorizerType}//{target_csv}_test.npz")
+
+    # relu,"(64, 32)",adaptive
+    mlp = MLPClassifier(activation='relu', hidden_layer_sizes=(64, 32), learning_rate='adaptive', max_iter=1000,
+                        early_stopping=True)
 
     mlp.fit(train_x, train_y)
-
-    end = time.time()
-    print(f"Fit data time taken: {end - start}")
-
-    start = time.time()
 
     y_predictions = mlp.predict(test_x)
 
     print(y_predictions)
     print(f"Accuracy: {accuracy_score(test_y, y_predictions)}")
-
-    end = time.time()
-    print(f"Predictions time taken: {end - start}")
-
-"""
-# dictionary of hyperparams to test
-    mlp_hyperparams = [{
-        'hidden_layer_sizes': (100, 100),
-        'activation': ('relu', 'logistic'),
-        'learning_rate': ('constant', 'adaptive')
-    }]
-"""
 
 
 def mlp_finetune(target_csv, column, vectorizerType):
@@ -65,10 +63,8 @@ def mlp_finetune(target_csv, column, vectorizerType):
     test_set = pd.read_csv(f"{vectorizerType}//{target_csv}_test.csv")
 
     train_y = training_set[column]
-    test_y = test_set[column]
 
     train_x = load_npz(f"{vectorizerType}//{target_csv}_train.npz")
-    test_x = load_npz(f"{vectorizerType}//{target_csv}_test.npz")
 
     # create a new mlp()
     mlp = MLPClassifier(max_iter=1000, early_stopping=True)
