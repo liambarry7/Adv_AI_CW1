@@ -207,7 +207,7 @@ def get_cnn_model(filters, kernel_size, max_len, learning_rate):
 
     # instantiate a CNN model, Sequential type
     cnn_model = Sequential([
-        Conv1D(filters=128, kernel_size=5, input_shape=(max_len, 1), activation='relu'),
+        Conv1D(filters=filters, kernel_size=kernel_size, input_shape=(max_len, 1), activation='relu'),
         GlobalMaxPooling1D(),
         Dense(128, activation='relu'),
         Dropout(0.5),
@@ -240,7 +240,7 @@ def fine_tune_cnn(vectorizerType, target_csv, column):
     train_x = train_x.reshape(train_x.shape[0], max_len, 1)
     test_x = test_x.reshape(test_x.shape[0], max_len, 1)
 
-    filters = [128, 64, 32]
+    filters = [128, 64]
     kernel_sizes = [3, 5]
     learning_rates = [0.001, 0.0001]
 
