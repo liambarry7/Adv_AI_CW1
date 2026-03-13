@@ -1,5 +1,76 @@
 {
     "model_results": [
-        
+        {
+            "v_type": "tfidf",
+            "filter": 128,
+            "kernel_size": 3,
+            "learning_rate": 0.001,
+            "test_loss": 0.6809284090995789,
+            "test_acc": 0.5780031085014343,
+            "total_time": 906.3583474159241
+        },
+        {
+            "v_type": "tfidf",
+            "filter": 128,
+            "kernel_size": 3,
+            "learning_rate": 0.0001,
+            "test_loss": 0.6810570955276489,
+            "test_acc": 0.5780031085014343,
+            "total_time": 1502.7825145721436
+        },
+        {
+            "v_type": "tfidf",
+            "filter": 128,
+            "kernel_size": 5,
+            "learning_rate": 0.001,
+            "test_loss": 0.6809160113334656,
+            "test_acc": 0.5780031085014343,
+            "total_time": 910.3762378692627
+        },
+        {
+            "v_type": "tfidf",
+            "filter": 128,
+            "kernel_size": 5,
+            "learning_rate": 0.0001,
+            "test_loss": 0.6807462573051453,
+            "test_acc": 0.5780031085014343,
+            "total_time": 1589.2358031272888
+        },
+        {
+            "v_type": "tfidf",
+            "filter": 64,
+            "kernel_size": 3,
+            "learning_rate": 0.001,
+            "test_loss": 0.6807113885879517,
+            "test_acc": 0.5780031085014343,
+            "total_time": 804.2004551887512
+        },
+        {
+            "v_type": "tfidf",
+            "filter": 64,
+            "kernel_size": 3,
+            "learning_rate": 0.0001,
+            "test_loss": 0.6810181140899658,
+            "test_acc": 0.5780031085014343,
+            "total_time": 756.7799758911133
+        },
+        {
+            "v_type": "tfidf",
+            "filter": 64,
+            "kernel_size": 5,
+            "learning_rate": 0.001,
+            "test_loss": 0.6809133291244507,
+            "test_acc": 0.5780031085014343,
+            "total_time": 574.7586019039154
+        },
+        {
+            "v_type": "tfidf",
+            "filter": 64,
+            "kernel_size": 5,
+            "learning_rate": 0.0001,
+            "test_loss": 0.6808719635009766,
+            "test_acc": 0.5780031085014343,
+            "total_time": 729.3460030555725
+        }
     ]
 }

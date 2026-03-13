@@ -310,7 +310,7 @@ def cnn(vectorizerType, target_csv, column):
 
     # instantiate a CNN model, Sequential type
     cnn_model = Sequential([
-        Conv1D(filters=128, kernel_size=5, input_shape=(max_len, 1), activation='relu'),
+        Conv1D(filters=64, kernel_size=3, input_shape=(max_len, 1), activation='relu'),
         GlobalMaxPooling1D(),
         Dense(128, activation='relu'),
         Dropout(0.5),
@@ -320,6 +320,10 @@ def cnn(vectorizerType, target_csv, column):
     ])
 
     cnn_model.compile(optimizer=Adam(learning_rate=0.001), loss='binary_crossentropy', metrics=['accuracy'])
+
+    # save model
+    with open('best_tfidf_cnn.pkl', 'wb') as file:
+        pickle.dump(cnn_model, file)
 
     # fine tune: filters, kernel_size, dropout_rate
 
@@ -332,6 +336,8 @@ def cnn(vectorizerType, target_csv, column):
     score = cnn_model.evaluate(test_x, test_y, verbose=1)
     print(f"Test loss: {score[0]}")
     print(f"Test accuracy: {score[1]}")
+#     Test loss: 0.6806715726852417
+# Test accuracy: 0.5783931612968445
 
 
 def compare():
@@ -354,21 +360,8 @@ if __name__ == "__main__":
     # mlp_finetune("tokens_pos", "class_label", "bow")
 
 
-    # cnn("tfidf", "tokens_pos", "class_label")
-    fine_tune_cnn("tfidf", "tokens_pos", "class_label")
+    cnn("tfidf", "tokens_pos", "class_label")
+    # fine_tune_cnn("tfidf", "tokens_pos", "class_label")
     # fine_tune_cnn("bow", "tokens_pos", "class_label")
 
-""""
-        
-    ************************
-    
-    reduction strategy:
-        - for each vectorization type: 
-            - for each dataset:
-                - assess lem vs stem in cross validation -> best stays on == STEM
-                - create lem or stem with  pos
-                - cross val to get best dataset overall
-            - fine tune with best dataset
-            - save results and compare
-                    
-"""
+
