@@ -103,7 +103,7 @@ def get_topics(v_type, n_comp, max_iterations):
 
 if __name__ == "__main__":
 
-    # topics_extraction("tfidf")
+    topics_extraction("tfidf")
     topics_extraction("bow")
 
 

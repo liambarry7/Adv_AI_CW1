@@ -34,14 +34,32 @@ def dataset_graphs(v_type):
     plt.show()
 
 def create_cnn_graphs():
-    pass
+    with open("ft_results//cnn_ft.json", "r") as file:
+        model_rs = json.load(file)
+
+    df = pd.DataFrame(model_rs['model_results'])
+
+    x = df['test_acc'].to_numpy()
+    y = df['test_loss'].to_numpy()
+    plt.scatter(x, y)
+
+    plt.title("TFIDF CNN Fine-tuning")
+    plt.ylabel("test loss")
+    plt.xlabel("test accuracy")
+    plt.savefig("graphs//tfidf_cnn_ft.png")
+    plt.show()
 
 def compare_nn():
     # create bar chart of accuracy
 
-    # mlp accuracy = 0.921
-    # cnn accuracy = 0.
-    pass
+    mlp_accuracy = 0.921
+    cnn_accuracy = 0.578
+    plt.bar(["mlp accuracy", "cnn accuracy"], [mlp_accuracy, cnn_accuracy])
+    plt.title(f"Classifer Accuracy Comparison")
+    plt.xlabel("Model")
+    plt.ylabel("Accuracy")
+    plt.savefig(f"graphs//classifier_acc_comp.png")
+    plt.show()
 
 def add_labels(x, y, t1, t2):
     for i in range(len(x)):
@@ -70,7 +88,7 @@ def create_topic_graphs():
     plt.ylabel("Time")
     plt.xlabel("Mean Similarity")
     plt.legend(["TFIDF", "BoW"])
-    # plt.savefig("graphs//lda_v_similarity.png")
+    plt.savefig("graphs//lda_v_similarity.png")
     plt.show()
 
     # compare best model to headline truths
@@ -98,5 +116,7 @@ def create_topic_graphs():
 if __name__ == "__main__":
     # create_mlp_graphs()
     # create_topic_graphs()
-    dataset_graphs("bow")
-    dataset_graphs("tfidf")
+    # dataset_graphs("bow")
+    # dataset_graphs("tfidf")
+    # create_cnn_graphs()
+    compare_nn()

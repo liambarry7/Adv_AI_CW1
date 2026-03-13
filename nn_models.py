@@ -58,7 +58,6 @@ def mlp_finetune(target_csv, column, vectorizerType):
 
     start = time.time()
 
-
     # get datasets
     training_set = pd.read_csv(f"{vectorizerType}//{target_csv}_train.csv")
     test_set = pd.read_csv(f"{vectorizerType}//{target_csv}_test.csv")
@@ -199,7 +198,6 @@ def best_dataset(v_type):
     df.to_csv(f"{v_type}_dataset_comparison_mlp.csv")
 
 def get_cnn_model(filters, kernel_size, max_len, learning_rate):
-    # https://www.geeksforgeeks.org/nlp/text-classification-using-cnn/
     # input_dim = no of unique tokens
     # output_dim = size of word vector
 
@@ -286,7 +284,6 @@ def fine_tune_cnn(vectorizerType, target_csv, column):
                     json.dump(model_rs, file, indent=4)
 
 def cnn(vectorizerType, target_csv, column):
-    # https://www.geeksforgeeks.org/nlp/text-classification-using-cnn/
     training_set = pd.read_csv(f"{vectorizerType}/{target_csv}_train.csv")
     test_set = pd.read_csv(f"{vectorizerType}/{target_csv}_test.csv")
 
@@ -348,25 +345,25 @@ def cnn(vectorizerType, target_csv, column):
 
 
 if __name__ == "__main__":
-    # lem_vs_stem("bow")
+    lem_vs_stem("bow")
 
     # tfidf
-    # lem_vs_stem("tfidf")
-    # best_dataset("tfidf")
-    # mlp_finetune("tokens_pos", "class_label", "tfidf") # 3164.secs
+    lem_vs_stem("tfidf")
+    best_dataset("tfidf")
+    mlp_finetune("tokens_pos", "class_label", "tfidf") # 3164.secs
 
     # BoW
-    # lem_vs_stem("bow")
-    # best_dataset("bow")
-    # mlp_finetune("tokens_pos", "class_label", "bow")
+    lem_vs_stem("bow")
+    best_dataset("bow")
+    mlp_finetune("tokens_pos", "class_label", "bow")
 
     # train and save the best model
-    # mlp("bow", "tokens_pos", "class_label")
-    # mlp("tfidf", "tokens_pos", "class_label")
-    # test_mlp("bow", "tokens_pos", "class_label")
+    mlp("bow", "tokens_pos", "class_label")
+    mlp("tfidf", "tokens_pos", "class_label")
+    test_mlp("bow", "tokens_pos", "class_label")
 
 
     cnn("tfidf", "tokens_pos", "class_label")
-    # fine_tune_cnn("tfidf", "tokens_pos", "class_label")
-    # fine_tune_cnn("bow", "tokens_pos", "class_label")
+    fine_tune_cnn("tfidf", "tokens_pos", "class_label")
+    fine_tune_cnn("bow", "tokens_pos", "class_label")
 

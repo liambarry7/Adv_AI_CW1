@@ -249,14 +249,14 @@ def test():
         print("\n")
 
 if __name__ == "__main__":
-    # spacy.cli.download("en_core_web_sm")
+    spacy.cli.download("en_core_web_sm")
     nlp = spacy.load('en_core_web_sm')
-    # test()
+    test()
 
-    # text_preprocess("raw_datasets/social-media-release.csv", "lem")
-    # text_preprocess("raw_datasets/social-media-release.csv", "stem")
-    # get_entities("raw_datasets/social-media-release.csv")
-    # get_pos("raw_datasets/social-media-release.csv")
+    text_preprocess("raw_datasets/social-media-release.csv", "lem")
+    text_preprocess("raw_datasets/social-media-release.csv", "stem")
+    get_entities("raw_datasets/social-media-release.csv")
+    get_pos("raw_datasets/social-media-release.csv")
 
-    # tokens_for_topics("raw_datasets/social-media-release.csv", "lem")
+    tokens_for_topics("raw_datasets/social-media-release.csv", "lem")
     tokens_for_topics("raw_datasets/social-media-release.csv", "stem")

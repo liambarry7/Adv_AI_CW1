@@ -7,7 +7,6 @@ from scipy.sparse import save_npz, load_npz, hstack
 def dataset_split(df):
     # split dataset into training and test sets
     print("Split dataset to test, training")
-    # df = pd.read_csv(df)
     training_set, test_set = train_test_split(df, random_state=42, test_size=0.2)
     print(training_set.shape, test_set.shape)
 
@@ -59,7 +58,6 @@ def bow(target_csv, column, folder):
         pickle.dump(bow_v, file)
 
     # save the feature vectors
-    # https://docs.scipy.org/doc/scipy/reference/sparse.html
     save_npz(f"{folder}//{target_csv}_train.npz", bow_tokens_train)
     save_npz(f"{folder}//{target_csv}_test.npz", bow_tokens_test)
 
@@ -79,7 +77,6 @@ def nlu_tfidf(v_type, target_csv, folder):
     # create one long vector of headlines and tokens
     ready_df['full_tokens'] = ready_df["headline_tokens"] + " " + ready_df["post_tokens"]
 
-
     # create TFIDF vectorizer
     tfidf_v = TfidfVectorizer(min_df=10)
 
@@ -94,7 +91,6 @@ def nlu_tfidf(v_type, target_csv, folder):
     with open(f'{folder}//tfidf_v.pkl', 'wb') as file:
         pickle.dump(tfidf_v, file)
 
-    # save_npz(f"{folder}//{target_csv}_full.npz", )
     save_npz(f"{folder}//{target_csv}_tfidf_headline.npz", headline_tfidf)
     save_npz(f"{folder}//{target_csv}_tfidf_post.npz", post_tfidf)
 
@@ -113,7 +109,6 @@ def nlu_bow(v_type, target_csv, folder):
     # create one long vector of headlines and tokens
     ready_df['full_tokens'] = ready_df["headline_tokens"] + " " + ready_df["post_tokens"]
 
-
     # create TFIDF vectorizer
     bow_v = CountVectorizer(min_df=10)
 
@@ -128,7 +123,6 @@ def nlu_bow(v_type, target_csv, folder):
     with open(f'{folder}//bow_v.pkl', 'wb') as file:
         pickle.dump(bow_v, file)
 
-    # save_npz(f"{folder}//{target_csv}_full.npz", )
     save_npz(f"{folder}//{target_csv}_bow_headline.npz", headline_bow)
     save_npz(f"{folder}//{target_csv}_bow_post.npz", post_bow)
 
@@ -182,10 +176,7 @@ def tfidf(target_csv, column, folder, raw=0):
 
 
 def combine_datasets(v_type, file1, file2, columns, name):
-    #   AMEND TO FIX FOR RAW DATASETS RATHER THAN ALRADY VECTORISED ONES
-
-    # for i in ["train", "test"]:
-    #     # combine two datasets together where doc ID match
+    # combine two datasets together where doc ID match
     df1 = pd.read_csv(f"{v_type}//{file1}.csv")
     df2 = pd.read_csv(f"{v_type}//{file2}.csv")
 
@@ -194,18 +185,6 @@ def combine_datasets(v_type, file1, file2, columns, name):
     combined['tokens'] = combined[columns[0]] + " " + combined[columns[1]]
     combined.drop(columns=columns, inplace=True)
     combined.to_csv(f"{v_type}//{name}.csv", index=False)
-
-
-
-
-def test():
-    # https://www.geeksforgeeks.org/nlp/vectorization-techniques-in-nlp/
-    # https://www.geeksforgeeks.org/nlp/how-to-store-a-tfidfvectorizer-for-future-use-in-scikit-learn/
-    # https://docs.scipy.org/doc/scipy/reference/sparse.html
-
-
-
-    pass
 
 def create_tfidf():
     # create lem and stem tokens
@@ -241,13 +220,12 @@ def create_bow():
 
 
 if __name__ == "__main__":
-    # test()
 
     # task one
-    # create_bow()
-    # create_tfidf()
+    create_bow()
+    create_tfidf()
 
     # task two
-    # nlu_tfidf("tfidf", "tokens_lem", "nlu_data")
+    nlu_tfidf("tfidf", "tokens_lem", "nlu_data")
     nlu_bow("bow", "tokens_lem", "nlu_data")
 
