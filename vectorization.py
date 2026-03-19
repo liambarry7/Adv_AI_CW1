@@ -218,14 +218,58 @@ def create_bow():
     # create token-pos vector
     bow("tokens_pos", "tokens", "bow")
 
+def demo_bow():
+    df = pd.read_csv("demos//demo_set.csv")
+    print(df.head())
+
+    # check for any nans
+    nan_rows = df[df.isna().any(axis=1)]
+    print(f"nan rows: {nan_rows}")
+    ready_df = df.dropna().reset_index(drop=True)
+
+    nan_rows2 = ready_df[ready_df.isna().any(axis=1)]
+    print(f"nan rows: {nan_rows2}")
+
+    # get BoW vectorizer
+    with open('bow//post-tokens_stem_bow_v.pkl', 'rb') as file:
+        bow_v = pickle.load(file)
+
+    # bow_v = CountVectorizer(min_df=10)  # only include words that appear in 10 > documents
+
+    # fit_transform the training data
+    bow_tokens = bow_v.transform(ready_df['tokens'])
+
+    print(len(bow_v.get_feature_names_out()))
+    print(type(bow_tokens))
+
+    # print(f"training bow: {bow_tokens_train}")
+    # print(f"test bow: {bow_tokens_test}")
+
+    # save the datasets, feature vectors and vectorizer
+
+    # Save the vectorizer using pickle
+    # with open('demos//demo_bow_v.pkl', 'wb') as file:
+    #     pickle.dump(bow_v, file)
+
+    # save the feature vectors
+    save_npz(f"demos//demos_set_vector.npz", bow_tokens)
+
+def demo_vect():
+    # combine pos and tokens
+    combine_datasets("demos", "demo-tokens", "demo-pos", ["post_tokens", "pos"], "demo_set")
+
+    # create vect
+    demo_bow()
 
 if __name__ == "__main__":
 
     # task one
-    create_bow()
-    create_tfidf()
+    # create_bow()
+    # create_tfidf()
+    #
+    # # task two
+    # nlu_tfidf("tfidf", "tokens_lem", "nlu_data")
+    # nlu_bow("bow", "tokens_lem", "nlu_data")
 
-    # task two
-    nlu_tfidf("tfidf", "tokens_lem", "nlu_data")
-    nlu_bow("bow", "tokens_lem", "nlu_data")
+    demo_vect()
 

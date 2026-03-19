@@ -343,27 +343,43 @@ def cnn(vectorizerType, target_csv, column):
     with open('best_bow_cnn.pkl', 'wb') as file:
         pickle.dump(mlp, file)
 
+def demo_mlp():
+
+    with open('best_bow_mlp.pkl', 'rb') as file:
+        mlp_model = pickle.load(file)
+
+    test_set = pd.read_csv("demos//demo_set.csv")
+    test_y = test_set["class_label"]
+
+    test_x = load_npz("demos//demos_set_vector.npz")
+
+    y_predictions = mlp_model.predict(test_x)
+
+    print(y_predictions)
+    print(f"Accuracy: {accuracy_score(test_y, y_predictions)}")
+
 
 if __name__ == "__main__":
-    lem_vs_stem("bow")
+    # lem_vs_stem("bow")
+    #
+    # # tfidf
+    # lem_vs_stem("tfidf")
+    # best_dataset("tfidf")
+    # mlp_finetune("tokens_pos", "class_label", "tfidf") # 3164.secs
+    #
+    # # BoW
+    # lem_vs_stem("bow")
+    # best_dataset("bow")
+    # mlp_finetune("tokens_pos", "class_label", "bow")
+    #
+    # # train and save the best model
+    # mlp("bow", "tokens_pos", "class_label")
+    # mlp("tfidf", "tokens_pos", "class_label")
+    # test_mlp("bow", "tokens_pos", "class_label")
+    #
+    #
+    # cnn("tfidf", "tokens_pos", "class_label")
+    # fine_tune_cnn("tfidf", "tokens_pos", "class_label")
+    # fine_tune_cnn("bow", "tokens_pos", "class_label")
 
-    # tfidf
-    lem_vs_stem("tfidf")
-    best_dataset("tfidf")
-    mlp_finetune("tokens_pos", "class_label", "tfidf") # 3164.secs
-
-    # BoW
-    lem_vs_stem("bow")
-    best_dataset("bow")
-    mlp_finetune("tokens_pos", "class_label", "bow")
-
-    # train and save the best model
-    mlp("bow", "tokens_pos", "class_label")
-    mlp("tfidf", "tokens_pos", "class_label")
-    test_mlp("bow", "tokens_pos", "class_label")
-
-
-    cnn("tfidf", "tokens_pos", "class_label")
-    fine_tune_cnn("tfidf", "tokens_pos", "class_label")
-    fine_tune_cnn("bow", "tokens_pos", "class_label")
-
+    demo_mlp()

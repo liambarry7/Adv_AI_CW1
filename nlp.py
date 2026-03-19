@@ -222,6 +222,67 @@ def tokens_for_topics(target_csv, mode="lem"):
 
     df_final.to_csv(f"nlu_data//tokens_{mode}.csv", index=False)
 
+def demo_tokens():
+    df = pd.read_csv("demos//test-dataset1.csv")
+
+    # print any rows with nan values
+    nan_rows = df[df.isna().any(axis=1)]
+    print(f"nan rows: {nan_rows}")
+
+    # if row contains null value, remove
+    df = df.dropna().reset_index(drop=True)
+
+    # remove any duplicates
+    df = df.drop_duplicates().reset_index(drop=True)
+
+    nan_rows = df[df.isna().any(axis=1)]
+    print(f"nan rows: {nan_rows}")
+
+    df['post_tokens'] = df['post'].apply(text_tokenizing_stem)
+
+    # encode class label
+    df['class_label'] = df['class_label'].astype('category').cat.codes
+
+    nan_rows = df[df.isna().any(axis=1)]
+    print(f"nan rows: {nan_rows}")
+
+    # if row has no tokens, remove row
+    df_cleaned = df.dropna()
+
+    df_final = df_cleaned[['id', 'class_label', 'post_tokens']]
+
+    df_final.to_csv("demos//demo-tokens.csv", index=False)
+
+def demo_pos():
+    df = pd.read_csv("demos//test-dataset1.csv")
+
+    # print any rows with nan values
+    nan_rows = df[df.isna().any(axis=1)]
+    print(f"nan rows: {nan_rows}")
+
+    # if row contains null value, remove
+    df = df.dropna().reset_index(drop=True)
+
+    # remove any duplicates
+    df = df.drop_duplicates().reset_index(drop=True)
+
+    nan_rows = df[df.isna().any(axis=1)]
+    print(f"nan rows: {nan_rows}")
+
+    df['pos'] = df['post'].apply(pos)
+
+    # encode class label
+    df['class_label'] = df['class_label'].astype('category').cat.codes
+
+    nan_rows = df[df.isna().any(axis=1)]
+    print(f"nan rows: {nan_rows}")
+
+    # if row has no tokens, remove row
+    df_cleaned = df.dropna()
+
+    df_final = df_cleaned[['id', 'class_label', 'pos']]
+
+    df_final.to_csv("demos//demo-pos.csv", index=False)
 
 def test():
 
@@ -251,12 +312,15 @@ def test():
 if __name__ == "__main__":
     spacy.cli.download("en_core_web_sm")
     nlp = spacy.load('en_core_web_sm')
-    test()
+    # test()
+    #
+    # text_preprocess("raw_datasets/social-media-release.csv", "lem")
+    # text_preprocess("raw_datasets/social-media-release.csv", "stem")
+    # get_entities("raw_datasets/social-media-release.csv")
+    # get_pos("raw_datasets/social-media-release.csv")
+    #
+    # tokens_for_topics("raw_datasets/social-media-release.csv", "lem")
+    # tokens_for_topics("raw_datasets/social-media-release.csv", "stem")
 
-    text_preprocess("raw_datasets/social-media-release.csv", "lem")
-    text_preprocess("raw_datasets/social-media-release.csv", "stem")
-    get_entities("raw_datasets/social-media-release.csv")
-    get_pos("raw_datasets/social-media-release.csv")
-
-    tokens_for_topics("raw_datasets/social-media-release.csv", "lem")
-    tokens_for_topics("raw_datasets/social-media-release.csv", "stem")
+    demo_tokens()
+    demo_pos()
